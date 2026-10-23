@@ -132,6 +132,32 @@
       transition: transform .3s cubic-bezier(.16, 1, .3, 1), box-shadow .3s ease;
     }
     .card:hover { transform: translateY(-6px); box-shadow: 0 40px 72px -36px rgba(0, 70, 81, 0.6), 0 2px 6px rgba(0, 70, 81, 0.05); }
+
+    /* 카드 1: 위아래 반반 (위 공지사항 · 아래 오늘의 공지) */
+    .notice-card {
+      /* 열 폭을 카드 폭에 고정 (안 그러면 긴 공지 제목만큼 열이 넓어져 날짜가 잘림) */
+      display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: minmax(0, 1fr);
+      place-items: stretch; padding: 0; overflow: hidden;
+      color: var(--black); letter-spacing: normal;
+    }
+    .card-half { display: flex; flex-direction: column; min-height: 0; padding: 24px 24px 16px; }
+    .card-half + .card-half { border-top: 1px solid rgba(0, 70, 81, 0.1); }
+    .card-title { margin: 0 0 12px; font-size: 18px; font-weight: 700; color: var(--main); }
+    /* 공지가 많으면 목록 안에서만 스크롤 */
+    .notice-list { margin: 0 -8px; padding: 0; list-style: none; overflow-y: auto; scrollbar-width: thin; }
+    .notice-list li {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 8px; border-radius: 10px; font-size: 14px;
+    }
+    .notice-list li + li { border-top: 1px solid rgba(0, 70, 81, 0.06); }
+    .notice-list .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .notice-list time { flex: none; font-size: 12px; color: rgba(0, 70, 81, 0.55); }
+    /* 상단 고정 공지: 연두 '고정' 배지(연두 면 위 딥 틸 글씨 4.59:1) + 옅은 바탕 */
+    .notice-list .pinned { background: var(--main-light); font-weight: 600; }
+    .notice-list .pin {
+      flex: none; padding: 2px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 700; color: var(--main); background: var(--accent);
+    }
     /* 휴대폰: 3장이 다 들어가면 너무 작아지므로, 한 장씩 크게 보고 옆으로 넘김 */
     @media (max-width: 760px) {
       #area1 { padding: 80px 0 24px; }
@@ -260,7 +286,15 @@
 
     <section class="area" id="area1">
       <div class="cards">
-        <article class="card">카드 1</article>
+        <article class="card notice-card">
+          <section class="card-half" aria-labelledby="noticeTitle">
+            <h2 class="card-title" id="noticeTitle">공지사항</h2>
+            <ul class="notice-list" id="noticeList"></ul>
+          </section>
+          <section class="card-half" aria-labelledby="todayTitle">
+            <h2 class="card-title" id="todayTitle">오늘의 공지</h2>
+          </section>
+        </article>
         <article class="card">카드 2</article>
         <article class="card">카드 3</article>
       </div>
@@ -344,6 +378,34 @@
       menuPop.hidden = true;
       document.querySelector('.menu-btn').addEventListener('click', () => { menuPop.hidden = !menuPop.hidden; });
     }
+
+    // 카드 1 공지사항: 상단 고정 공지가 맨 위, 그다음은 최신순
+    // ponytail: 서버 연결 전 임시 공지 목록. 서버가 생기면 이 배열만 받아온 데이터로 바꾸면 됨
+    const NOTICES = [
+      { title: '10월 정기 휴원 안내 (10/28 화)', date: '2026-10-20', pinned: true },
+      { title: '2026 겨울방학 특강 수강 신청 안내', date: '2026-10-15', pinned: true },
+      { title: 'AI 프로젝트 발표회 일정 안내', date: '2026-10-23' },
+      { title: '파이썬 기초반 교재 배부 안내', date: '2026-10-22' },
+      { title: '10월 모의 코딩테스트 결과 공지', date: '2026-10-18' },
+      { title: '강의실 Wi-Fi 비밀번호 변경 안내', date: '2026-10-12' },
+      { title: '취업 준비반 이력서 첨삭 신청 안내', date: '2026-10-08' },
+      { title: '추석 연휴 휴원 안내', date: '2026-09-30' },
+    ];
+    const sortNotices = list => [...list].sort((a, b) =>
+      (b.pinned === true) - (a.pinned === true) || b.date.localeCompare(a.date));
+    const noticeList = document.getElementById('noticeList');
+    noticeList.replaceChildren(...sortNotices(NOTICES).map(n => {
+      const li = document.createElement('li');
+      if (n.pinned) {
+        li.className = 'pinned';
+        li.append(Object.assign(document.createElement('span'), { className: 'pin', textContent: '고정' }));
+      }
+      li.append(
+        Object.assign(document.createElement('span'), { className: 't', textContent: n.title, title: n.title }),
+        Object.assign(document.createElement('time'), { dateTime: n.date, textContent: n.date.slice(5).replace('-', '.') }),
+      );
+      return li;
+    }));
 
     // 최초 접속·새로고침 모두 매번 재생. 배경 이미지가 준비된 뒤 시작
     const ready = new Promise(res => {
