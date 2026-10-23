@@ -7,6 +7,6 @@ cd "$(dirname "$0")/.."
 docker rm -f aleph-pg-test >/dev/null 2>&1 || true
 docker run -d --name aleph-pg-test -e POSTGRES_PASSWORD=test -v "$PWD:/work" postgres:18 >/dev/null
 until docker exec aleph-pg-test pg_isready -U postgres >/dev/null 2>&1; do sleep 1; done; sleep 2
-docker exec aleph-pg-test psql -U postgres -q -v ON_ERROR_STOP=1 -f /work/test/00_fake_supabase.sql -f /work/setup.sql -f /work/002_dashboard.sql
-docker exec aleph-pg-test psql -U postgres -f /work/test/tests.sql -f /work/test/tests_002.sql 2>&1 || true
+docker exec aleph-pg-test psql -U postgres -q -v ON_ERROR_STOP=1 -f /work/test/00_fake_supabase.sql -f /work/setup.sql -f /work/002_dashboard.sql -f /work/003_teacher.sql
+docker exec aleph-pg-test psql -U postgres -f /work/test/tests.sql -f /work/test/tests_002.sql -f /work/test/tests_003.sql 2>&1 || true
 docker rm -f aleph-pg-test >/dev/null

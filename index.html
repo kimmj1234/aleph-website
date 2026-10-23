@@ -385,6 +385,24 @@
     .notice-form input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--main); }
     .dash-list .pin { flex: none; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--main); background: var(--accent); }
     .dash-msg { min-height: 20px; margin: 0 0 10px; font-size: 14px; color: var(--main); }
+    .dash-nav [hidden] { display: none; }
+    /* 내 프로필 */
+    .profile-form { max-width: 640px; padding: 24px 28px; }
+    .profile-form .field { margin-bottom: 18px; }
+    .profile-form textarea.dash-input { width: 100%; height: auto; padding: 10px 14px; resize: vertical; line-height: 1.6; }
+    .profile-form .q { margin: 4px 0 20px; }
+    .profile-meta { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 0 0 20px; padding-bottom: 18px; border-bottom: 1px solid rgba(0, 70, 81, 0.08); font-size: 14px; }
+    .profile-meta dt { color: var(--muted); }
+    .profile-meta dd { margin: 0; font-weight: 600; }
+    .form-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .form-row .dash-msg { margin: 0; }
+    .mini-btn.big { padding: 11px 22px; font-size: 14px; border-radius: 999px; }
+    /* 학생 메모 (가입 정보 아래) */
+    .memo { margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgba(0, 70, 81, 0.2); }
+    .memo strong { display: block; margin-bottom: 6px; font-size: 13px; color: var(--main); }
+    .memo textarea.dash-input { width: 100%; max-width: 640px; height: auto; min-height: 80px; padding: 10px 12px; resize: vertical; line-height: 1.6; }
+    .memo .form-row { margin-top: 8px; }
+    .memo-dot { display: inline-block; width: 8px; height: 8px; margin-left: 6px; border-radius: 50%; background: var(--accent); vertical-align: middle; }
     .dash-msg.err { color: #b3261e; }
     @media (max-width: 760px) {
       .dash { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
@@ -689,26 +707,29 @@
     <section class="area" id="area3">영역 3</section>
   </main>
 
-  <!-- 계정 메뉴 (관리자): 계정 정보 · 대시보드 · 로그아웃 -->
+  <!-- 계정 메뉴 (관리자·강사): 계정 정보 · 내 프로필 · 대시보드(강사는 학생 관리) · 로그아웃 -->
   <div class="account-pop" id="accountPop" popover>
     <div class="account-info">
       <span class="avatar big" id="accAvatar"></span>
       <div><strong id="accName"></strong><small id="accId"></small></div>
-      <span class="role-badge">관리자</span>
+      <span class="role-badge" id="accRole"></span>
     </div>
-    <button type="button" class="pop-item" id="openDash"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>대시보드</button>
+    <button type="button" class="pop-item" id="openProfile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>내 프로필</button>
+    <button type="button" class="pop-item" id="openDash"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg><span id="openDashLabel">대시보드</span></button>
     <button type="button" class="pop-item" id="logoutBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>로그아웃</button>
   </div>
 
-  <!-- 관리자 대시보드: 계정 메뉴의 '대시보드'로 엶 -->
-  <section class="dash" id="dashboard" hidden aria-label="관리자 대시보드">
+  <!-- 대시보드: 계정 메뉴로 엶. 메뉴는 역할에 따라 다름 (data-for) -->
+  <section class="dash" id="dashboard" hidden aria-label="대시보드">
     <aside class="dash-side">
-      <div class="dash-brand">ALEPH<span>관리자 대시보드</span></div>
+      <div class="dash-brand">ALEPH<span id="dashSub">관리자 대시보드</span></div>
       <nav class="dash-nav" aria-label="대시보드 메뉴">
-        <button type="button" data-tab="overview" aria-current="page">개요</button>
-        <button type="button" data-tab="members">회원 관리</button>
-        <button type="button" data-tab="notices">공지 관리</button>
-        <button type="button" data-tab="codes">강사 고유 코드</button>
+        <button type="button" data-tab="overview" data-for="admin" aria-current="page">개요</button>
+        <button type="button" data-tab="members" data-for="admin">회원 관리</button>
+        <button type="button" data-tab="notices" data-for="admin">공지 관리</button>
+        <button type="button" data-tab="codes" data-for="admin">강사 고유 코드</button>
+        <button type="button" data-tab="students" data-for="teacher">학생 관리</button>
+        <button type="button" data-tab="profile" data-for="teacher admin">내 프로필</button>
       </nav>
       <button type="button" class="dash-back" id="closeDash">← 사이트로 돌아가기</button>
     </aside>
@@ -750,6 +771,38 @@
         </form>
         <p class="dash-msg" id="noticeMsg" role="status"></p>
         <ul class="dash-list dash-box" id="noticeAdminList"></ul>
+      </section>
+      <section class="dash-panel" id="tab-students" hidden>
+        <h1 class="card-title">학생 관리</h1>
+        <p class="lead">학생들의 가입 정보를 보고, 학생마다 나만 보는 메모를 남길 수 있어요.</p>
+        <div class="dash-tools">
+          <div class="chip-group" id="gradeChips" role="group" aria-label="과정으로 거르기"></div>
+          <input class="dash-input" id="studentSearch" type="search" placeholder="이름·아이디로 찾기" aria-label="이름·아이디로 찾기">
+        </div>
+        <p class="dash-msg" id="studentMsg" role="status"></p>
+        <div class="table-wrap dash-box">
+          <table class="dash-table">
+            <thead><tr><th>이름</th><th>아이디</th><th>과정</th><th>관심 분야</th><th></th></tr></thead>
+            <tbody id="studentRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="dash-panel" id="tab-profile" hidden>
+        <h1 class="card-title">내 프로필</h1>
+        <p class="lead">이름, 한 줄 소개, 담당 분야를 고칠 수 있어요. 아이디와 역할은 바꿀 수 없어요.</p>
+        <form class="dash-box profile-form" id="profileForm">
+          <dl class="profile-meta"><dt>아이디</dt><dd id="pfId"></dd><dt>역할</dt><dd id="pfRole"></dd><dt>가입일</dt><dd id="pfDate"></dd></dl>
+          <label class="field"><span>이름</span><input class="dash-input" name="name" maxlength="30" autocomplete="name"></label>
+          <label class="field"><span>한 줄 소개 <em class="field-hint">200자 이내</em></span><textarea class="dash-input" name="bio" maxlength="200" rows="3" placeholder="예) 파이썬 기초부터 차근차근 알려 드려요."></textarea></label>
+          <fieldset class="q"><legend>담당 분야 <em>복수 선택</em></legend><div class="opts"><label class="opt"><input type="checkbox" name="subjects" value="python"><span>파이썬</span></label><label class="opt"><input type="checkbox" name="subjects" value="ai-use"><span>AI활용</span></label><label class="opt"><input type="checkbox" name="subjects" value="data"><span>데이터 분석</span></label><label class="opt"><input type="checkbox" name="subjects" value="web"><span>웹 개발</span></label><label class="opt"><input type="checkbox" name="subjects" value="license"><span>자격증</span></label><label class="opt"><input type="checkbox" name="subjects" value="career"><span>취업 컨설팅</span></label></div></fieldset>
+          <div class="form-row"><button class="mini-btn solid big" type="submit">저장</button><p class="dash-msg" id="profileMsg" role="status"></p></div>
+        </form>
+        <h2>비밀번호 바꾸기</h2>
+        <form class="dash-box profile-form" id="pwForm">
+          <label class="field"><span>새 비밀번호 (8자 이상)</span><input class="dash-input" type="password" name="pw" autocomplete="new-password" minlength="8"></label>
+          <label class="field"><span>새 비밀번호 확인</span><input class="dash-input" type="password" name="pw2" autocomplete="new-password"></label>
+          <div class="form-row"><button class="mini-btn solid big" type="submit">비밀번호 바꾸기</button><p class="dash-msg" id="pwMsg" role="status"></p></div>
+        </form>
       </section>
       <section class="dash-panel" id="tab-codes" hidden>
         <h1 class="card-title">강사 고유 코드</h1>
@@ -1237,14 +1290,14 @@
     // Supabase 로그인은 이메일 형식이라, 아이디를 '아이디@aleph.local' 로 바꿔 저장 (메일은 보내지 않음)
     const toEmail = id => `${id.trim().toLowerCase()}@aleph.local`;
 
-    let me = null;   // 로그인한 사람 { userid, name, role }
+    let me = null;   // 로그인한 사람 { id, userid, name, role, bio, subjects, created_at }
     const loggedIn = () => !!me;
     async function loadMe() {
       if (DEMO) { try { me = JSON.parse(sessionStorage.getItem('aleph-demo')); } catch { me = null; } return; }
       if (!db) { me = null; return; }
       const { data: { session } } = await db.auth.getSession();
       if (!session) { me = null; return; }
-      const { data } = await db.from('profiles').select('userid, name, role').eq('id', session.user.id).maybeSingle();
+      const { data } = await db.from('profiles').select('id, userid, name, role, bio, subjects, created_at').eq('id', session.user.id).maybeSingle();
       me = data;
     }
     const authReady = loadMe();
@@ -1252,13 +1305,15 @@
     const loginBtn = document.querySelector('.topbar .login-btn');
     const accountBtn = document.getElementById('accountBtn');
     const accountPop = document.getElementById('accountPop');
-    // 관리자: 로그아웃 버튼 대신 계정 버튼(계정 정보·대시보드·로그아웃 메뉴) / 그 외: 로그아웃 버튼
+    // 관리자·강사: 로그아웃 버튼 대신 계정 버튼(계정 정보·내 프로필·대시보드·로그아웃 메뉴) / 학생: 로그아웃 버튼
     function updateTopbar() {
-      const admin = me?.role === 'admin';
-      loginBtn.hidden = admin;
+      const staff = me?.role === 'admin' || me?.role === 'teacher';
+      loginBtn.hidden = staff;
       loginBtn.lastChild.textContent = me ? '로그아웃' : '로그인';
-      accountBtn.hidden = !admin;
-      if (admin) {
+      accountBtn.hidden = !staff;
+      if (staff) {
+        document.getElementById('accRole').textContent = me.role === 'admin' ? '관리자' : '강사';
+        document.getElementById('openDashLabel').textContent = me.role === 'admin' ? '대시보드' : '학생 관리';
         const initial = (me.name || me.userid).trim().charAt(0);
         document.getElementById('accountAvatar').textContent = document.getElementById('accAvatar').textContent = initial;
         document.getElementById('accountName').textContent = document.getElementById('accName').textContent = me.name;
@@ -1402,8 +1457,8 @@
       signUp(f, extra);
     });
 
-    // ── 관리자 대시보드 ──
-    // 화면은 관리자에게만 열리지만, 실제로 무엇을 읽고 고칠 수 있는지는 서버 규칙(RLS)이 정함
+    // ── 대시보드 (관리자·강사) ──
+    // 역할에 맞는 메뉴만 보이지만, 실제로 무엇을 읽고 고칠 수 있는지는 서버 규칙(RLS)이 정함
     const el = (tag, props) => Object.assign(document.createElement(tag), props);
     const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE').replaceAll('-', '.');
     const ROLE_LABEL = { student: '학생', teacher: '강사', admin: '관리자' };
@@ -1411,18 +1466,24 @@
     const say = (node, text, err) => { node.textContent = text; node.classList.toggle('err', !!err); };
     const dash = document.getElementById('dashboard');
     const dashTabs = [...dash.querySelectorAll('.dash-nav [data-tab]')];
-    const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes };
+    const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes,
+                      students: loadStudents, profile: loadProfile };
     function showTab(name) {
       dashTabs.forEach(b => b.dataset.tab === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
       dash.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
       LOADERS[name]();
     }
     dashTabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
-    document.getElementById('openDash').addEventListener('click', () => {
+    function openDash(tab) {
       accountPop.hidePopover?.();
+      if (accountPop.hidden === false && !('popover' in HTMLElement.prototype)) accountPop.hidden = true;
+      dashTabs.forEach(b => { b.hidden = !b.dataset.for.split(' ').includes(me.role); });
+      document.getElementById('dashSub').textContent = me.role === 'admin' ? '관리자 대시보드' : '강사 공간';
       dash.hidden = false;
-      showTab('overview');
-    });
+      showTab(tab || (me.role === 'admin' ? 'overview' : 'students'));
+    }
+    document.getElementById('openDash').addEventListener('click', () => openDash());
+    document.getElementById('openProfile').addEventListener('click', () => openDash('profile'));
     document.getElementById('closeDash').addEventListener('click', () => { dash.hidden = true; loadNotices(); });
 
     // 개요: 회원·공지·코드 숫자 + 최근 가입
@@ -1456,7 +1517,7 @@
     const memberMsg = document.getElementById('memberMsg');
     const memberSearch = document.getElementById('memberSearch');
     async function loadMembers() {
-      const { data, error } = await db.from('profiles').select('id, userid, name, role, extra, created_at').order('created_at', { ascending: false });
+      const { data, error } = await db.from('profiles').select('id, userid, name, role, extra, bio, subjects, created_at').order('created_at', { ascending: false });
       if (error) return say(memberMsg, '회원 목록을 불러오지 못했어요.', true);
       members = data;
       renderMembers();
@@ -1469,6 +1530,18 @@
     function extraTitle(key) {
       const legend = document.querySelector(`#f-extra input[name="${key}"]`)?.closest('fieldset')?.querySelector('legend');
       return legend ? legend.firstChild.textContent.trim() : key;
+    }
+    // 회원 한 명의 정보 목록: 학생은 가입 2단계 답변, 강사는 소개·담당 분야
+    const SUBJECTS = { python: '파이썬', 'ai-use': 'AI활용', data: '데이터 분석', web: '웹 개발', license: '자격증', career: '취업 컨설팅' };
+    function memberInfo(m) {
+      const dl = el('dl');
+      const add = (k, v) => dl.append(el('dt', { textContent: k }), el('dd', { textContent: v }));
+      const entries = Object.entries(m.extra || {}).filter(([, v]) => v && v.length !== 0);
+      entries.forEach(([k, v]) => add(extraTitle(k), extraText(k, v)));
+      if (m.bio) add('한 줄 소개', m.bio);
+      if (m.subjects?.length) add('담당 분야', m.subjects.map(v => SUBJECTS[v] || v).join(', '));
+      if (!dl.children.length) add('추가 정보', '없음');
+      return dl;
     }
     function renderMembers() {
       const q = memberSearch.value.trim().toLowerCase();
@@ -1490,12 +1563,8 @@
         tr.children[4].append(btns);
         // 가입 정보: 학생의 2단계 답변 (강사·관리자는 기본 정보만)
         const detail = el('tr', { className: 'detail', hidden: true });
-        const dl = el('dl');
-        const entries = Object.entries(m.extra || {}).filter(([, v]) => v && v.length !== 0);
-        if (entries.length) entries.forEach(([k, v]) => dl.append(el('dt', { textContent: extraTitle(k) }), el('dd', { textContent: extraText(k, v) })));
-        else dl.append(el('dt', { textContent: '추가 정보' }), el('dd', { textContent: '없음' }));
         const dtd = el('td', { colSpan: 5 });
-        dtd.append(dl);
+        dtd.append(memberInfo(m));
         detail.append(dtd);
         more.addEventListener('click', () => { detail.hidden = !detail.hidden; });
         // 이름 수정: 그 자리에서 입력 → 저장
@@ -1586,6 +1655,121 @@
       say(noticeMsg, '공지를 올렸어요. 메인 페이지 공지사항에 바로 보여요.');
       loadAdminNotices();
     });
+
+    // 내 프로필 (강사·관리자): 이름 · 한 줄 소개 · 담당 분야 · 비밀번호
+    const profileForm = document.getElementById('profileForm');
+    const profileMsg = document.getElementById('profileMsg');
+    function loadProfile() {
+      document.getElementById('pfId').textContent = me.userid;
+      document.getElementById('pfRole').textContent = ROLE_LABEL[me.role];
+      document.getElementById('pfDate').textContent = me.created_at ? fmtDate(me.created_at) : '-';
+      profileForm.name.value = me.name;
+      profileForm.bio.value = me.bio || '';
+      profileForm.querySelectorAll('[name="subjects"]').forEach(c => { c.checked = (me.subjects || []).includes(c.value); });
+      say(profileMsg, '');
+    }
+    profileForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = profileForm.name.value.trim();
+      if (!name) return say(profileMsg, '이름을 입력해 주세요.', true);
+      const patch = { name, bio: profileForm.bio.value.trim() || null,
+        subjects: [...profileForm.querySelectorAll('[name="subjects"]:checked')].map(c => c.value) };
+      const { error } = await db.from('profiles').update(patch).eq('id', me.id);
+      if (error) return say(profileMsg, '저장하지 못했어요.', true);
+      Object.assign(me, patch);
+      updateTopbar();
+      say(profileMsg, '프로필을 저장했어요.');
+    });
+    const pwForm = document.getElementById('pwForm');
+    const pwMsg = document.getElementById('pwMsg');
+    pwForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (pwForm.pw.value.length < 8) return say(pwMsg, '비밀번호는 8자 이상이어야 해요.', true);
+      if (pwForm.pw.value !== pwForm.pw2.value) return say(pwMsg, '비밀번호가 서로 달라요.', true);
+      const { error } = await db.auth.updateUser({ password: pwForm.pw.value });
+      if (error) return say(pwMsg, error.code === 'same_password' ? '지금 쓰는 비밀번호와 달라야 해요.' : '비밀번호를 바꾸지 못했어요.', true);
+      pwForm.reset();
+      say(pwMsg, '비밀번호를 바꿨어요. 다음 로그인부터 새 비밀번호를 쓰세요.');
+    });
+
+    // 학생 관리 (강사): 과정으로 거르기 · 찾기 · 가입 정보 · 학생마다 나만 보는 메모
+    let students = [];
+    let notes = new Map();   // 학생 id → { note, updated_at }
+    let studentGrade = '';
+    const studentRows = document.getElementById('studentRows');
+    const studentMsg = document.getElementById('studentMsg');
+    const studentSearch = document.getElementById('studentSearch');
+    const gradeChips = document.getElementById('gradeChips');
+    // 과정 거르기 단추: 회원가입 창의 과정 선택지를 그대로 사용
+    gradeChips.append(...[['', '전체'], ...[...document.querySelectorAll('#f-extra input[name="grade"]')]
+      .map(i => [i.value, i.nextElementSibling.textContent])].map(([v, t]) =>
+        el('button', { type: 'button', textContent: t, ariaPressed: String(v === '') , onclick() {
+          gradeChips.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === this));
+          studentGrade = v;
+          renderStudents();
+        } })));
+    gradeChips.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', i === 0));
+    async function loadStudents() {
+      const [{ data, error }, { data: memo }] = await Promise.all([
+        db.from('profiles').select('id, userid, name, extra, created_at').eq('role', 'student').order('name'),
+        db.from('student_notes').select('student_id, note, updated_at').eq('teacher_id', me.id),
+      ]);
+      if (error) return say(studentMsg, '학생 목록을 불러오지 못했어요.', true);
+      students = data;
+      notes = new Map((memo || []).map(n => [n.student_id, n]));
+      renderStudents();
+    }
+    function renderStudents() {
+      const q = studentSearch.value.trim().toLowerCase();
+      const list = students.filter(s => (!studentGrade || s.extra?.grade === studentGrade)
+        && (!q || s.name.toLowerCase().includes(q) || s.userid.toLowerCase().includes(q)));
+      if (!list.length) {
+        const td = el('td', { className: 'muted', colSpan: 5, textContent: students.length ? '해당하는 학생이 없어요.' : '아직 가입한 학생이 없어요.' });
+        return studentRows.replaceChildren(el('tr').appendChild(td).parentNode);
+      }
+      studentRows.replaceChildren(...list.flatMap(s => {
+        const tr = el('tr');
+        const nameTd = el('td', { textContent: s.name });
+        if (notes.has(s.id)) nameTd.append(el('span', { className: 'memo-dot', title: '메모 있음' }));
+        const more = el('button', { type: 'button', className: 'mini-btn', textContent: '정보·메모' });
+        const btns = el('div', { className: 'row-btns' });
+        btns.append(more);
+        tr.append(nameTd, el('td', { textContent: s.userid }),
+          el('td', { textContent: s.extra?.grade ? extraText('grade', s.extra.grade) : '-' }),
+          el('td', { className: 'muted', textContent: s.extra?.interest?.length ? extraText('interest', s.extra.interest) : '-' }),
+          el('td'));
+        tr.lastChild.append(btns);
+        // 가입 정보 + 메모 (메모는 쓴 강사 본인만 볼 수 있음)
+        const detail = el('tr', { className: 'detail', hidden: true });
+        const td = el('td', { colSpan: 5 });
+        const memo = el('div', { className: 'memo' });
+        const saved = notes.get(s.id);
+        const ta = el('textarea', { className: 'dash-input', maxLength: 1000, value: saved?.note || '',
+          placeholder: '이 학생에 대한 메모 (나만 볼 수 있어요)', ariaLabel: `${s.name} 메모` });
+        const save = el('button', { type: 'button', className: 'mini-btn solid', textContent: '메모 저장' });
+        const info = el('span', { className: 'muted', textContent: saved ? `마지막 수정 ${fmtDate(saved.updated_at)}` : '' });
+        const row = el('div', { className: 'form-row' });
+        row.append(save, info);
+        memo.append(el('strong', { textContent: '내 메모' }), ta, row);
+        td.append(memberInfo(s), memo);
+        detail.append(td);
+        more.addEventListener('click', () => { detail.hidden = !detail.hidden; });
+        save.addEventListener('click', async () => {
+          const text = ta.value.trim();
+          let error;
+          if (!text && saved) ({ error } = await db.from('student_notes').delete().eq('student_id', s.id).eq('teacher_id', me.id));
+          else if (!text) return say(studentMsg, '메모 내용을 입력해 주세요.', true);
+          else if (saved) ({ error } = await db.from('student_notes').update({ note: text, updated_at: new Date().toISOString() })
+            .eq('student_id', s.id).eq('teacher_id', me.id));
+          else ({ error } = await db.from('student_notes').insert({ student_id: s.id, note: text }));
+          if (error) return say(studentMsg, '메모를 저장하지 못했어요.', true);
+          say(studentMsg, text ? `${s.name} 학생 메모를 저장했어요.` : `${s.name} 학생 메모를 지웠어요.`);
+          await loadStudents();
+        });
+        return [tr, detail];
+      }));
+    }
+    studentSearch.addEventListener('input', renderStudents);
 
     // 강사 고유 코드: 발급 · 보기/복사 · 사용 전 코드 삭제
     const codeList = document.getElementById('codeList');
