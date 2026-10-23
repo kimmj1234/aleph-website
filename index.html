@@ -112,8 +112,12 @@
     }
 
     /* ── 영역 1: 세로 카드 ──
-       메뉴바(72px) 아래 남은 공간 가운데에 3:4 세로 카드 한 장 */
-    #area1 { padding: 96px 24px 40px; }
+       메뉴바(72px) 아래 남은 공간 왼쪽에 3:4 세로 카드 한 장.
+       왼쪽 끝은 메뉴바의 ALEPH 글자와 같은 선에 맞춤 (메뉴바 내용 최대 폭 1200px + 여백 24px) */
+    #area1 {
+      justify-content: flex-start;
+      padding: 96px 24px 40px max(24px, (100% - 1200px) / 2 + 24px);
+    }
     .card {
       /* 높이: 남은 화면 높이·640px·(가로에 들어가는 높이) 중 가장 작은 값 → 폭은 3:4 비율로 자동 */
       height: min(100%, 640px, (100vw - 48px) * 4 / 3); aspect-ratio: 3 / 4; box-sizing: border-box;
