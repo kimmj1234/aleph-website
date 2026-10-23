@@ -193,6 +193,14 @@
       font-size: 15px; font-weight: 700;
     }
     .login-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    /* 로그인만 눈에 띄게: 딥 틸로 물든 진한 유리 버튼 (흰 글씨 대비 10.5:1). 선택된 메뉴의 흰 버튼과도 구분됨 */
+    .login-btn {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 55%), var(--main);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+                  0 8px 20px -8px rgba(0, 70, 81, 0.75);
+      text-shadow: none;
+    }
+    .login-btn:hover { background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0) 55%), var(--main); }
 
     /* 좁은 화면: 메뉴는 원형 ☰ 유리 버튼을 눌러 펼침. 펼쳐져 있는 동안 버튼이 흰색으로 */
     .menu-btn {
