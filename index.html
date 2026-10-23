@@ -178,30 +178,44 @@
       font-size: 11px; font-weight: 700; color: var(--main); background: var(--accent);
     }
 
-    /* 공지 더보기 창: 화면 맨 위 레이어에 뜨는 모달. 바깥을 누르거나 Esc·X로 닫힘 */
+    /* 공지 창: 화면 맨 위 레이어에 크게 뜨는 모달. 왼쪽 공지사항 · 오른쪽 오늘의 공지 (나중에 댓글 자리)
+       바깥을 누르거나 Esc·X로 닫힘 */
     .notice-dialog {
-      width: min(480px, calc(100vw - 32px)); max-height: min(640px, calc(100dvh - 64px));
-      padding: 0; border: 0; border-radius: 24px; box-sizing: border-box;
+      width: min(1120px, calc(100vw - 48px)); height: min(760px, calc(100dvh - 64px));
+      max-width: none; max-height: none;
+      padding: 0; border: 0; border-radius: 28px; box-sizing: border-box;
       background: var(--white); color: var(--black);
       box-shadow: 0 32px 80px -24px rgba(0, 30, 35, 0.5);
     }
-    .notice-dialog[open] { display: flex; flex-direction: column; animation: dialogIn .3s cubic-bezier(.16, 1, .3, 1); }
+    .notice-dialog[open] { display: grid; grid-template-columns: 1fr 1fr; animation: dialogIn .3s cubic-bezier(.16, 1, .3, 1); }
     .notice-dialog::backdrop { background: rgba(0, 30, 35, 0.35); backdrop-filter: blur(4px); }
     @keyframes dialogIn { from { opacity: 0; transform: translateY(12px) scale(.98); } }
-    .dialog-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      padding: 22px 20px 14px 28px; border-bottom: 1px solid rgba(0, 70, 81, 0.1);
-    }
-    .dialog-head .count { margin-right: auto; font-size: 14px; font-weight: 500; color: rgba(0, 70, 81, 0.55); }
+    /* 각 칸은 따로 스크롤 (제목은 위에 고정) */
+    .dialog-col { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 32px 32px 0; }
+    .dialog-col + .dialog-col { border-left: 1px solid rgba(0, 70, 81, 0.1); }
+    .dialog-col .card-head { justify-content: flex-start; margin-bottom: 14px; padding-right: 40px; }
+    .dialog-col .card-title { font-size: 22px; }
+    .dialog-col .count { font-size: 14px; font-weight: 500; color: rgba(0, 70, 81, 0.55); }
+    .notice-dialog .notice-list { flex: 1; margin: 0 -8px; padding: 0 0 24px; }
+    .notice-dialog .notice-list li { padding: 13px 8px; font-size: 15px; }
+    .notice-dialog .empty { margin: 8px 0 0; font-size: 15px; color: rgba(0, 70, 81, 0.55); }
     .dialog-close {
-      display: grid; place-items: center; width: 36px; height: 36px; padding: 0;
+      position: absolute; top: 20px; right: 20px; z-index: 1;
+      display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
       appearance: none; border: 0; border-radius: 50%; cursor: pointer;
-      font-size: 22px; line-height: 1; color: var(--main); background: none;
+      font-size: 26px; line-height: 1; color: var(--main); background: var(--white);
     }
     .dialog-close:hover { background: var(--main-light); }
     .dialog-close:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
-    .notice-dialog .notice-list { margin: 0; padding: 8px 20px 20px; }
-    .notice-dialog .notice-list li { padding: 12px 8px; font-size: 15px; }
+    /* 좁은 화면: 위 공지사항 · 아래 오늘의 공지로 쌓음 */
+    @media (max-width: 760px) {
+      .notice-dialog { width: calc(100vw - 24px); height: calc(100dvh - 48px); border-radius: 24px; }
+      .notice-dialog[open] { grid-template-columns: 1fr; grid-template-rows: 3fr 2fr; }
+      .dialog-col { padding: 24px 20px 0; }
+      .dialog-col + .dialog-col { border-left: 0; border-top: 1px solid rgba(0, 70, 81, 0.1); }
+      .dialog-col .card-title { font-size: 19px; }
+      .dialog-close { top: 14px; right: 14px; }
+    }
     /* 휴대폰: 3장이 다 들어가면 너무 작아지므로, 한 장씩 크게 보고 옆으로 넘김 */
     @media (max-width: 760px) {
       #area1 { padding: 80px 0 24px; }
@@ -334,7 +348,7 @@
           <section class="card-half" aria-labelledby="noticeTitle">
             <div class="card-head">
               <h2 class="card-title" id="noticeTitle">공지사항</h2>
-              <button class="more-btn" id="noticeMore" type="button" aria-label="공지 더 보기" aria-haspopup="dialog" hidden>
+              <button class="more-btn" id="noticeMore" type="button" aria-label="공지 더 보기" aria-haspopup="dialog">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
               </button>
             </div>
@@ -352,13 +366,18 @@
     <section class="area" id="area3">영역 3</section>
   </main>
 
-  <!-- 공지 더보기 창: 카드에 다 못 보여준 공지 -->
-  <dialog class="notice-dialog" id="noticeDialog" closedby="any" aria-labelledby="noticeDialogTitle">
-    <div class="dialog-head">
-      <h2 class="card-title" id="noticeDialogTitle">공지사항 더보기</h2>
-      <button class="dialog-close" type="button" aria-label="닫기">×</button>
-    </div>
-    <ul class="notice-list" id="noticeMoreList"></ul>
+  <!-- 공지 창: 카드 1의 화살표로 엶. 왼쪽 전체 공지사항 · 오른쪽 오늘의 공지 -->
+  <dialog class="notice-dialog" id="noticeDialog" closedby="any" aria-label="공지사항 전체 보기">
+    <button class="dialog-close" type="button" aria-label="닫기">×</button>
+    <section class="dialog-col" aria-labelledby="dlgNoticeTitle">
+      <div class="card-head"><h2 class="card-title" id="dlgNoticeTitle">공지사항</h2><span class="count" id="dlgNoticeCount"></span></div>
+      <ul class="notice-list" id="noticeAllList"></ul>
+    </section>
+    <section class="dialog-col" aria-labelledby="dlgTodayTitle">
+      <div class="card-head"><h2 class="card-title" id="dlgTodayTitle">오늘의 공지</h2><span class="count" id="dlgTodayCount"></span></div>
+      <ul class="notice-list" id="todayList"></ul>
+      <p class="empty" id="todayEmpty" hidden>오늘 올라온 공지가 없어요.</p>
+    </section>
   </dialog>
 
   <script>
@@ -467,17 +486,20 @@
       );
       return li;
     }
-    // 카드에는 앞의 6개(고정 + 최신)만, 나머지는 화살표를 눌러 여는 창에서
+    // 카드에는 앞의 6개(고정 + 최신)만. 화살표를 누르면 큰 창에서 전체 공지 + 오늘의 공지
     const CARD_NOTICES = 6;
     const sorted = sortNotices(NOTICES);
-    const rest = sorted.slice(CARD_NOTICES);
     document.getElementById('noticeList').replaceChildren(...sorted.slice(0, CARD_NOTICES).map(noticeItem));
-    document.getElementById('noticeMoreList').replaceChildren(...rest.map(noticeItem));
+    document.getElementById('noticeAllList').replaceChildren(...sorted.map(noticeItem));
+    document.getElementById('dlgNoticeCount').textContent = `${sorted.length}개`;
+    // 오늘 날짜(이 컴퓨터 기준, YYYY-MM-DD)에 올라온 공지
+    const todayStr = new Date().toLocaleDateString('sv-SE');
+    const todays = sorted.filter(n => n.date === todayStr);
+    document.getElementById('todayList').replaceChildren(...todays.map(noticeItem));
+    document.getElementById('dlgTodayCount').textContent = `${todays.length}개`;
+    document.getElementById('todayEmpty').hidden = todays.length > 0;
     const noticeDialog = document.getElementById('noticeDialog');
     const noticeMore = document.getElementById('noticeMore');
-    noticeDialog.querySelector('.card-title').after(
-      Object.assign(document.createElement('span'), { className: 'count', textContent: `${rest.length}개` }));
-    noticeMore.hidden = rest.length === 0;
     noticeMore.addEventListener('click', () => noticeDialog.showModal());
     noticeDialog.querySelector('.dialog-close').addEventListener('click', () => noticeDialog.close());
     // closedby="any" 미지원 브라우저(Safari): 창 바깥(배경)을 누르면 닫히게
