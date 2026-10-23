@@ -134,6 +134,173 @@
     }
     .card:hover { transform: translateY(-6px); box-shadow: 0 40px 72px -36px rgba(0, 70, 81, 0.6), 0 2px 6px rgba(0, 70, 81, 0.05); }
 
+    /* 로그인 창: 화면 위 레이어에 하나만 뜨고, 아래 화면은 살짝 블러 */
+    .auth-modal {
+      border: 0; padding: 0; background: transparent; overflow: visible;
+      width: min(600px, calc(100vw - 32px)); max-height: calc(100dvh - 32px);
+      font-family: "Noto Sans KR", "Helvetica Neue", Arial, sans-serif; color: var(--black);
+      transition: width .6s cubic-bezier(.65, 0, .35, 1);
+    }
+    /* 추가 정보 단계: 창이 가로로 천천히 넓어짐 */
+    .auth-modal.wide { width: min(940px, calc(100vw - 32px)); }
+    .auth-modal::backdrop { background: rgba(0, 30, 35, 0.3); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .auth-modal[open] { animation: modalIn .4s cubic-bezier(.16, 1, .3, 1); }
+    .auth-modal[open]::backdrop { animation: backdropIn .4s ease; }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(16px) scale(.98); } }
+    @keyframes backdropIn { from { opacity: 0; } }
+    .auth-body {
+      position: relative; border-radius: 24px; padding: 44px clamp(24px, 6vw, 56px) 36px;
+      box-sizing: border-box; max-height: calc(100dvh - 32px); overflow-y: auto;
+      background: var(--white);
+      box-shadow: 0 40px 80px -30px rgba(0, 30, 35, 0.45), 0 0 0 1px rgba(0, 70, 81, 0.06);
+    }
+    .auth-close {
+      position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
+      appearance: none; border: 0; border-radius: 50%; cursor: pointer;
+      background: #f1f4f5; color: #555; font-size: 20px; line-height: 1;
+    }
+    .auth-close:hover { background: var(--main-light); color: var(--main); }
+    .auth-form h3 { margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--black); }
+    .auth-form .sub { margin: 0 0 24px; font-size: 14px; font-weight: 300; color: #666; }
+    .auth-form[hidden] { display: none; }
+    /* 단계 전환: 내용을 숨긴 채 창 크기를 바꾸고, 다 바뀐 뒤 서서히 보여줌 (흔들림 없이) */
+    .auth-form { transition: opacity .25s ease; }
+    .auth-form.fading { opacity: 0; }
+
+    /* 회원가입 단계 표시 */
+    .steps { display: flex; gap: 6px; margin: 0 0 18px; }
+    .steps span { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: #eef3f4; color: #7a8689; }
+    .steps .on { background: var(--main); color: var(--white); }
+    .steps .done { background: var(--main-light); color: var(--main); }
+
+    /* 추가 정보: 선택형 질문 */
+    .questions { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 32px; margin: 4px 0 0; }
+    .q { margin: 0; padding: 0; border: 0; min-width: 0; }
+    .q.full { grid-column: 1 / -1; }
+    .q legend { padding: 0; margin-bottom: 10px; font-size: 15px; font-weight: 700; color: var(--black); }
+    .q legend em { margin-left: 6px; font-style: normal; font-size: 12px; font-weight: 400; color: #7a8689; }
+    .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+    .opt { position: relative; cursor: pointer; }
+    .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .opt span {
+      display: inline-block; padding: 10px 18px; border-radius: 999px;
+      border: 1.5px solid #cfdadc; background: var(--white); font-size: 14px; color: #333;
+      transition: background .25s ease, border-color .25s ease, color .25s ease;
+    }
+    .opt:hover span { border-color: var(--main); color: var(--main); }
+    .opt input:checked + span { background: var(--main); border-color: var(--main); color: var(--white); }
+    .opt input:focus-visible + span { outline: 2px solid var(--main); outline-offset: 2px; }
+    .extra-actions { display: flex; gap: 10px; margin-top: 30px; }
+    .extra-actions .auth-submit { margin-top: 0; flex: 1; }
+    .back-btn {
+      padding: 15px 28px; border-radius: 999px; cursor: pointer;
+      border: 1.5px solid var(--main); background: var(--white); color: var(--main);
+      font: inherit; font-size: 15px; font-weight: 700; transition: background .2s ease;
+    }
+    .back-btn:hover { background: var(--main-light); }
+    @media (max-width: 700px) {
+      .questions { grid-template-columns: 1fr; }
+    }
+
+    /* 생년월일: 칸을 누르면 위쪽에 달력이 뜨고, 날짜를 누르면 바로 적용 */
+    .datepick { position: relative; }
+    .date-field {
+      box-sizing: border-box; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 14px 12px 16px; border-radius: 12px; border: 1.5px solid var(--main); background: var(--white);
+      font: inherit; font-size: 15px; color: #8a9598; text-align: left; cursor: pointer;
+      transition: box-shadow .2s ease;
+    }
+    .date-field.has-value { color: var(--black); }
+    .date-field svg { flex-shrink: 0; color: var(--main); }
+    .date-field:focus-visible, .date-field[aria-expanded="true"] { outline: none; box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
+    .cal {
+      position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5;
+      box-sizing: border-box; width: 300px; max-width: calc(100vw - 96px); padding: 14px;
+      border-radius: 16px; background: var(--white);
+      box-shadow: 0 22px 50px -14px rgba(0, 30, 35, 0.4), 0 0 0 1px rgba(0, 70, 81, 0.1);
+      animation: calIn .22s ease;
+    }
+    .cal[hidden] { display: none; }
+    @keyframes calIn { from { opacity: 0; transform: translateY(6px); } }
+    .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+    .cal-head select {
+      flex: 1; min-width: 0; padding: 7px 6px; border-radius: 10px; border: 1.5px solid #cfdadc;
+      background: var(--white); font: inherit; font-size: 14px; color: var(--black); cursor: pointer;
+    }
+    .cal-nav {
+      flex-shrink: 0; width: 32px; height: 32px; border: 0; border-radius: 9px; cursor: pointer;
+      background: #eef3f4; color: var(--main); font-size: 18px; line-height: 1;
+    }
+    .cal-nav:hover { background: var(--main-light); }
+    .cal-week, .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+    .cal-week span { padding: 4px 0; font-size: 12px; color: #7a8689; }
+    .cal-week span:first-child { color: #c62828; }
+    .cal-days button {
+      aspect-ratio: 1; border: 0; border-radius: 50%; background: none; cursor: pointer;
+      font: inherit; font-size: 14px; color: var(--black); transition: background .15s ease;
+    }
+    .cal-days button:hover { background: var(--main-light); color: var(--main); }
+    .cal-days button[aria-selected="true"] { background: var(--main); color: var(--white); }
+    .cal-days button:disabled { color: #c8cfd1; background: none; cursor: default; }
+    .field { display: block; margin-bottom: 14px; }
+    .field > span:first-child { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #333; }
+    .field input {
+      box-sizing: border-box; width: 100%; padding: 13px 16px; border-radius: 12px;
+      border: 1.5px solid var(--main); background: var(--white);
+      font: inherit; font-size: 15px; color: var(--black);
+      transition: box-shadow .2s ease;
+    }
+    .field input:focus { outline: none; box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
+
+    /* 비밀번호 표시하기 (눈 아이콘) */
+    .pw { position: relative; display: block; }
+    .pw input { padding-right: 54px; }
+    .pw-toggle {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      width: 40px; height: 40px; display: grid; place-items: center;
+      appearance: none; border: 0; border-radius: 10px; background: none; cursor: pointer; color: #6b7a7d;
+      transition: background .2s ease, color .2s ease;
+    }
+    .pw-toggle:hover { background: var(--main-light); color: var(--main); }
+    .pw-toggle:focus-visible { outline: 2px solid var(--main); outline-offset: 1px; }
+    .pw-toggle .i-hide, .pw-toggle[aria-pressed="true"] .i-show { display: none; }
+    .pw-toggle[aria-pressed="true"] .i-hide { display: block; }
+
+    /* 학생 로그인 / 강사 로그인 선택 */
+    .login-type {
+      position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+      margin: 0 0 22px; padding: 4px; border-radius: 999px; background: #eef3f4;
+    }
+    /* 선택 표시(메인 색 알약)가 버튼 사이를 천천히 미끄러지듯 이동 */
+    .login-type::before {
+      content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 6px);
+      border-radius: 999px; background: var(--main); box-shadow: 0 6px 16px -8px rgba(0, 70, 81, 0.6);
+      transition: transform .6s cubic-bezier(.65, 0, .35, 1);
+    }
+    .login-type[data-active="teacher"]::before { transform: translateX(calc(100% + 4px)); }
+    .login-type button {
+      position: relative; z-index: 1;
+      appearance: none; border: 0; padding: 12px; border-radius: 999px; cursor: pointer;
+      background: transparent; font: inherit; font-size: 14px; font-weight: 500; color: #5a6669;
+      transition: color .45s ease .1s;
+    }
+    .login-type button:hover { color: var(--main); }
+    .login-type button[aria-pressed="true"] { color: var(--white); }
+    .login-type button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+    .check { display: flex; align-items: flex-start; gap: 10px; margin: 6px 0 4px; font-size: 13px; color: #444; cursor: pointer; }
+    .check input { margin-top: 2px; accent-color: var(--main); }
+    .auth-submit {
+      width: 100%; margin-top: 14px; padding: 15px; border-radius: 999px; border: 0; cursor: pointer;
+      background: var(--main); color: var(--white); font: inherit; font-size: 15px; font-weight: 700;
+      transition: background .2s ease;
+    }
+    .auth-submit:hover { background: var(--black); }
+    .form-msg { min-height: 20px; margin: 12px 0 0; font-size: 13px; text-align: center; color: #c62828; }
+    .form-msg.ok { color: var(--main); }
+    .switch { margin: 14px 0 0; font-size: 13px; text-align: center; color: #666; }
+    .switch button { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--main); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+    .q[hidden] { display: none; }
+
     /* 카드 2: 로그인한 학생 전용. 로그인 전에는 내용 전체를 흐리게 덮고 가운데에 안내 문구 */
     .member-card { position: relative; place-items: stretch; padding: 0; overflow: hidden; }
     .member-body { display: flex; flex-direction: column; gap: 14px; height: 100%; padding: 28px 24px; box-sizing: border-box; }
@@ -146,7 +313,14 @@
       background: rgba(255, 255, 255, 0.45);
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     }
-    .login-lock p { margin: 0; font-size: 17px; font-weight: 700; color: var(--main); letter-spacing: normal; }
+    /* 안내 문구를 누르면 로그인 창이 열림 */
+    .login-lock button {
+      appearance: none; border: 0; cursor: pointer; padding: 10px 18px; border-radius: 999px;
+      font: inherit; font-size: 17px; font-weight: 700; color: var(--main); background: none; letter-spacing: normal;
+      transition: background .2s ease;
+    }
+    .login-lock button:hover { background: rgba(255, 255, 255, 0.7); }
+    .login-lock button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
     .login-lock[hidden] { display: none; }
 
     /* 카드 1: 위아래 반반 (위 공지사항 · 아래 오늘의 공지) */
@@ -351,7 +525,7 @@
         <button class="menu-btn" type="button" popovertarget="menuPop" aria-label="메뉴 열기">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <button class="login-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>로그인</button>
+        <button class="login-btn" type="button" data-auth="login"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>로그인</button>
       </div>
     </header>
     <div class="menu-pop" id="menuPop" popover>
@@ -381,7 +555,7 @@
             <span class="sk box"></span>
             <span class="sk w80"></span><span class="sk w50"></span>
           </div>
-          <div class="login-lock"><p>로그인을 해주세요</p></div>
+          <div class="login-lock"><button type="button" data-auth="login">로그인을 해주세요</button></div>
         </article>
         <article class="card">카드 3</article>
       </div>
@@ -402,6 +576,148 @@
       <ul class="notice-list" id="todayList"></ul>
       <p class="empty" id="todayEmpty" hidden>오늘 올라온 공지가 없어요.</p>
     </section>
+  </dialog>
+
+  <!-- 로그인 창 하나. 학생/강사 선택, 회원가입은 같은 창 안에서 내용만 바뀜 (서버 연결 전: 입력 확인까지만 동작) -->  <dialog class="auth-modal" id="authModal" aria-label="로그인">
+    <div class="auth-body">
+      <button class="auth-close" type="button" aria-label="닫기">×</button>
+
+      <form class="auth-form" id="f-login" novalidate>
+        <h3>다시 만나서 반가워요</h3>
+        <p class="sub">학생 아이디로 로그인하세요.</p>
+        <div class="login-type" role="group" aria-label="로그인 유형" data-active="student" data-field="loginType" data-sub="아이디로 로그인하세요.">
+          <button type="button" data-type="student" aria-pressed="true">학생 로그인</button>
+          <button type="button" data-type="teacher" aria-pressed="false">강사 로그인</button>
+        </div>
+        <input type="hidden" name="loginType" value="student">
+        <label class="field"><span>아이디</span><input type="text" name="userid" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+        <label class="field"><span>비밀번호</span><input type="password" name="password" autocomplete="current-password" required></label>
+        <button class="auth-submit" type="submit">로그인</button>
+        <p class="form-msg" role="status"></p>
+        <p class="switch">아직 계정이 없나요? <button type="button" data-auth="signup">회원가입</button></p>
+      </form>
+
+      <form class="auth-form" id="f-signup" novalidate hidden>
+        <div class="steps" aria-label="회원가입 단계"><span class="on" aria-current="step">1 기본 정보</span><span>2 추가 정보</span></div>
+        <h3>ALEPH와 함께 시작해요</h3>
+        <p class="sub">기본 정보를 입력하고 다음 단계로 넘어가요.</p>
+        <div class="login-type" role="group" aria-label="회원 유형" data-active="student" data-field="signupType">
+          <button type="button" data-type="student" aria-pressed="true">학생 회원가입</button>
+          <button type="button" data-type="teacher" aria-pressed="false">강사 회원가입</button>
+        </div>
+        <input type="hidden" name="signupType" value="student">
+        <label class="field"><span>이름</span><input type="text" name="name" autocomplete="name" required></label>
+        <label class="field"><span>아이디 (영문·숫자 4~16자)</span><input type="text" name="userid" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="4" maxlength="16" required></label>
+        <label class="field"><span>비밀번호 (8자 이상)</span><input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
+        <label class="field"><span>비밀번호 확인</span><input type="password" name="password2" autocomplete="new-password" required></label>
+        <label class="check"><input type="checkbox" name="agree" required> 이용약관 및 개인정보 수집·이용에 동의합니다 (필수)</label>
+        <button class="auth-submit" type="submit">다음</button>
+        <p class="form-msg" role="status"></p>
+        <p class="switch">이미 계정이 있나요? <button type="button" data-auth="login">로그인</button></p>
+      </form>
+
+      <!-- 회원가입 2단계: 추가 정보 (창이 가로로 넓어지며 선택형 질문) -->
+      <form class="auth-form" id="f-extra" novalidate hidden>
+        <div class="steps" aria-label="회원가입 단계"><span class="done">1 기본 정보</span><span class="on" aria-current="step">2 추가 정보</span></div>
+        <h3>조금만 더 알려주세요</h3>
+        <p class="sub" id="extraSub">맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.</p>
+
+        <div class="questions">
+          <!-- data-for: 그 회원 유형일 때만 보임 / data-msg: 필수 질문의 안내 문구 -->
+          <fieldset class="q" data-for="student" data-msg="지금 어떤 과정에 있는지 골라 주세요.">
+            <legend>지금 어떤 과정에 있나요? <em>필수</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="grade" value="elementary"><span>초등학생</span></label>
+              <label class="opt"><input type="radio" name="grade" value="middle"><span>중학생</span></label>
+              <label class="opt"><input type="radio" name="grade" value="high"><span>고등학생</span></label>
+              <label class="opt"><input type="radio" name="grade" value="adult"><span>대학생·성인</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q" data-for="student" data-msg="코딩 경험을 골라 주세요.">
+            <legend>코딩 경험은 어느 정도인가요? <em>필수</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="coding" value="none"><span>처음이에요</span></label>
+              <label class="opt"><input type="radio" name="coding" value="some"><span>조금 해봤어요</span></label>
+              <label class="opt"><input type="radio" name="coding" value="good"><span>자신 있어요</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q full" data-for="student" data-msg="관심 분야를 1개 이상 골라 주세요.">
+            <legend>관심 있는 분야를 골라 주세요 <em>1개 이상 · 복수 선택</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="interest" value="ai-use"><span>AI활용</span></label>
+              <label class="opt"><input type="checkbox" name="interest" value="service"><span>서비스</span></label>
+              <label class="opt"><input type="checkbox" name="interest" value="job"><span>취업</span></label>
+              <label class="opt"><input type="checkbox" name="interest" value="undecided"><span>미정</span></label>
+              <label class="opt"><input type="checkbox" name="interest" value="study"><span>학습</span></label>
+              <label class="opt"><input type="checkbox" name="interest" value="license"><span>자격증</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q full" data-for="teacher" data-msg="담당할 수 있는 분야를 1개 이상 골라 주세요.">
+            <legend>담당할 수 있는 분야 <em>1개 이상 · 복수 선택</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="subject" value="python"><span>파이썬</span></label>
+              <label class="opt"><input type="checkbox" name="subject" value="ai-use"><span>AI활용</span></label>
+              <label class="opt"><input type="checkbox" name="subject" value="data"><span>데이터 분석</span></label>
+              <label class="opt"><input type="checkbox" name="subject" value="web"><span>웹 개발</span></label>
+              <label class="opt"><input type="checkbox" name="subject" value="license"><span>자격증</span></label>
+              <label class="opt"><input type="checkbox" name="subject" value="career"><span>취업 컨설팅</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q full" data-for="teacher" data-msg="강의 경력을 골라 주세요.">
+            <legend>강의 경력 <em>필수</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="career" value="lt1"><span>1년 미만</span></label>
+              <label class="opt"><input type="radio" name="career" value="1to3"><span>1~3년</span></label>
+              <label class="opt"><input type="radio" name="career" value="3to5"><span>3~5년</span></label>
+              <label class="opt"><input type="radio" name="career" value="gt5"><span>5년 이상</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q full">
+            <legend>ALEPH를 어떻게 알게 되었나요? <em>선택</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="source" value="friend"><span>지인 추천</span></label>
+              <label class="opt"><input type="radio" name="source" value="search"><span>인터넷 검색</span></label>
+              <label class="opt"><input type="radio" name="source" value="sns"><span>SNS</span></label>
+              <label class="opt"><input type="radio" name="source" value="school"><span>학교·학원 안내</span></label>
+              <label class="opt"><input type="radio" name="source" value="etc"><span>기타</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="q" data-msg="생년월일을 달력에서 골라 주세요.">
+            <legend>생년월일 <em>필수</em></legend>
+            <div class="datepick" id="birthPick">
+              <button type="button" class="date-field" aria-haspopup="dialog" aria-expanded="false">
+                <span class="date-text">달력에서 선택하세요</span>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+              </button>
+              <input type="hidden" name="birth">
+              <div class="cal" role="dialog" aria-label="생년월일 달력" hidden>
+                <div class="cal-head">
+                  <button type="button" class="cal-nav" data-step="-1" aria-label="이전 달">‹</button>
+                  <select class="cal-year" aria-label="연도"></select>
+                  <select class="cal-month" aria-label="월"></select>
+                  <button type="button" class="cal-nav" data-step="1" aria-label="다음 달">›</button>
+                </div>
+                <div class="cal-week" aria-hidden="true"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+                <div class="cal-days"></div>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="q" data-msg="성별을 골라 주세요.">
+            <legend>성별 <em>필수</em></legend>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="gender" value="male"><span>남성</span></label>
+              <label class="opt"><input type="radio" name="gender" value="female"><span>여성</span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="extra-actions">
+          <button class="back-btn" type="button" data-auth="signup">이전</button>
+          <button class="auth-submit" type="submit">가입 완료</button>
+        </div>
+        <p class="form-msg" role="status"></p>
+      </form>
+    </div>
   </dialog>
 
   <script>
@@ -534,6 +850,225 @@
         if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) noticeDialog.close();
       });
     }
+
+    // 로그인 창: 로그인 버튼을 누르면 화면 위에 뜸. 창 안의 링크로 회원가입 내용과 전환
+    const authModal = document.getElementById('authModal');
+    const authForms = [...authModal.querySelectorAll('.auth-form')];
+    const authBody = authModal.querySelector('.auth-body');
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const focusFirst = form => form.querySelector('input:not([type="hidden"])').focus({ preventScroll: true });
+    let switching = false;
+    async function showAuth(which) {
+      const next = document.getElementById('f-' + which);
+      const current = authForms.find(f => !f.hidden);
+      const wide = which === 'extra';   // 추가 정보 단계에선 창을 넓게
+      next.querySelector('.form-msg').textContent = '';
+      authModal.setAttribute('aria-label', which === 'login' ? '로그인' : '회원가입');
+
+      // 처음 열 때는 바로 보여줌
+      if (!authModal.open) {
+        authForms.forEach(f => { f.hidden = f !== next; f.classList.remove('fading'); });
+        authModal.classList.toggle('wide', wide);
+        authModal.showModal();
+        focusFirst(next);
+        return;
+      }
+      if (current === next || switching) return;
+      switching = true;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // 1) 지금 내용을 서서히 지움
+      current.classList.add('fading');
+      if (!reduce) await wait(220);
+      // 2) 창 높이를 고정한 채, 보이지 않는 상태로 내용 교체
+      authBody.style.height = authBody.offsetHeight + 'px';
+      current.hidden = true;
+      current.classList.remove('fading');
+      next.classList.add('fading');
+      next.hidden = false;
+      // 3) 가로 길이 변경 (내용은 숨긴 채라 질문·버튼이 흔들려 보이지 않음)
+      if (authModal.classList.contains('wide') !== wide) {
+        authModal.classList.toggle('wide', wide);
+        if (!reduce) await wait(620);
+      }
+      // 4) 새 내용 높이로 부드럽게 맞춤
+      const from = authBody.offsetHeight;
+      authBody.style.height = 'auto';
+      const to = authBody.offsetHeight;
+      authBody.style.height = from + 'px';
+      void authBody.offsetHeight;
+      if (!reduce) {
+        authBody.style.transition = 'height .45s cubic-bezier(.65, 0, .35, 1)';
+        authBody.style.height = to + 'px';
+        await wait(460);
+      }
+      authBody.style.transition = '';
+      authBody.style.height = '';
+      // 5) 새 내용을 서서히 보여줌
+      next.classList.remove('fading');
+      focusFirst(next);
+      switching = false;
+    }
+    document.querySelectorAll('[data-auth]').forEach(b =>
+      b.addEventListener('click', () => showAuth(b.dataset.auth)));
+    authModal.querySelector('.auth-close').addEventListener('click', () => authModal.close());
+    // 창은 오른쪽 위 X로만 닫힘: 바깥 클릭으로는 닫히지 않고, Esc 키도 막음
+    authModal.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      if (!cal.hidden) toggleCal(false);   // 달력이 열려 있으면 달력만 닫음
+    });
+    authModal.addEventListener('cancel', e => e.preventDefault());
+
+    function formMessage(form, text, ok) {
+      const msg = form.querySelector('.form-msg');
+      msg.textContent = text;
+      msg.classList.toggle('ok', !!ok);
+    }
+    // 학생 / 강사 전환 (로그인·회원가입 공통)
+    const LOGIN_TYPES = { student: '학생', teacher: '강사' };
+    document.querySelectorAll('.login-type').forEach(group => {
+      const form = group.closest('form');
+      const buttons = [...group.querySelectorAll('[data-type]')];
+      buttons.forEach(b => b.addEventListener('click', () => {
+        buttons.forEach(x => x.setAttribute('aria-pressed', x === b));
+        group.dataset.active = b.dataset.type;   // 선택 표시가 이쪽으로 미끄러져 감
+        form.elements[group.dataset.field].value = b.dataset.type;
+        if (group.dataset.sub) form.querySelector('.sub').textContent = `${LOGIN_TYPES[b.dataset.type]} ${group.dataset.sub}`;
+        formMessage(form, '');
+      }));
+    });
+
+    // 비밀번호 칸마다 '표시하기' 눈 버튼을 붙임
+    const EYE = '<svg class="i-show" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const EYE_OFF = '<svg class="i-hide" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+    function setPwVisible(input, btn, show) {
+      input.type = show ? 'text' : 'password';
+      btn.setAttribute('aria-pressed', show);
+      btn.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 표시');
+    }
+    const pwToggles = [];
+    authModal.querySelectorAll('input[type="password"]').forEach(input => {
+      const wrap = document.createElement('span');
+      wrap.className = 'pw';
+      input.replaceWith(wrap);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pw-toggle';
+      btn.innerHTML = EYE + EYE_OFF;
+      setPwVisible(input, btn, false);
+      btn.addEventListener('click', () => setPwVisible(input, btn, input.type === 'password'));
+      wrap.append(input, btn);
+      pwToggles.push([input, btn]);
+    });
+    // 창을 닫으면 비밀번호는 다시 가려진 상태로
+    authModal.addEventListener('close', () => pwToggles.forEach(([i, b]) => setPwVisible(i, b, false)));
+
+    // 생년월일 달력: 칸을 누르면 열리고, 날짜를 누르면 적용되며 닫힘
+    const birth = document.getElementById('birthPick');
+    const birthBtn = birth.querySelector('.date-field');
+    const birthText = birth.querySelector('.date-text');
+    const birthInput = birth.querySelector('input[name="birth"]');
+    const cal = birth.querySelector('.cal');
+    const calYear = birth.querySelector('.cal-year');
+    const calMonth = birth.querySelector('.cal-month');
+    const calDays = birth.querySelector('.cal-days');
+    const today = new Date();
+    const MIN_YEAR = 1940;
+    for (let y = today.getFullYear(); y >= MIN_YEAR; y--) calYear.add(new Option(`${y}년`, y));
+    for (let m = 0; m < 12; m++) calMonth.add(new Option(`${m + 1}월`, m));
+    let view = { y: today.getFullYear() - 15, m: 0 };   // 처음엔 15년 전 1월을 보여줌
+
+    function renderCal() {
+      calYear.value = view.y;
+      calMonth.value = view.m;
+      calDays.innerHTML = '';
+      const blanks = new Date(view.y, view.m, 1).getDay();
+      const days = new Date(view.y, view.m + 1, 0).getDate();
+      for (let i = 0; i < blanks; i++) calDays.append(document.createElement('span'));
+      for (let d = 1; d <= days; d++) {
+        const value = `${view.y}-${String(view.m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const label = `${view.y}년 ${view.m + 1}월 ${d}일`;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = d;
+        b.setAttribute('aria-label', label);
+        b.setAttribute('aria-selected', birthInput.value === value);
+        b.disabled = new Date(view.y, view.m, d) > today;   // 미래 날짜는 고를 수 없음
+        b.addEventListener('click', () => {
+          birthInput.value = value;
+          birthText.textContent = label;
+          birthBtn.classList.add('has-value');
+          toggleCal(false);
+          birthBtn.focus();
+        });
+        calDays.append(b);
+      }
+    }
+    function toggleCal(open) {
+      if (open && birthInput.value) {
+        const [y, m] = birthInput.value.split('-').map(Number);
+        view = { y, m: m - 1 };
+      }
+      cal.hidden = !open;
+      birthBtn.setAttribute('aria-expanded', open);
+      if (open) renderCal();
+    }
+    birthBtn.addEventListener('click', () => toggleCal(cal.hidden));
+    calYear.addEventListener('change', () => { view.y = +calYear.value; renderCal(); });
+    calMonth.addEventListener('change', () => { view.m = +calMonth.value; renderCal(); });
+    birth.querySelectorAll('.cal-nav').forEach(b => b.addEventListener('click', () => {
+      const d = new Date(view.y, view.m + Number(b.dataset.step), 1);
+      if (d > today || d.getFullYear() < MIN_YEAR) return;
+      view = { y: d.getFullYear(), m: d.getMonth() };
+      renderCal();
+    }));
+    // 달력 바깥을 누르면 달력만 닫힘 (로그인 창은 그대로)
+    authModal.addEventListener('click', e => { if (!cal.hidden && !birth.contains(e.target)) toggleCal(false); });
+    authModal.addEventListener('close', () => toggleCal(false));
+
+    // 아이디: 영문·숫자(밑줄 허용) 4~16자
+    const idOk = v => /^[A-Za-z0-9_]{4,16}$/.test(v);
+
+    // 아직 서버가 없어서 입력값 확인까지만 하고, 실제 로그인·가입은 하지 않음
+    document.getElementById('f-login').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.userid.value.trim()) return formMessage(f, '아이디를 입력해 주세요.');
+      if (!f.password.value) return formMessage(f, '비밀번호를 입력해 주세요.');
+      formMessage(f, `${LOGIN_TYPES[f.elements.loginType.value]} 로그인 입력 확인 완료! 서버 연결 후 실제 로그인이 가능해요.`, true);
+    });
+    document.getElementById('f-signup').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.name.value.trim()) return formMessage(f, '이름을 입력해 주세요.');
+      if (!idOk(f.userid.value.trim())) return formMessage(f, '아이디는 영문·숫자 4~16자로 입력해 주세요.');
+      if (f.password.value.length < 8) return formMessage(f, '비밀번호는 8자 이상이어야 해요.');
+      if (f.password.value !== f.password2.value) return formMessage(f, '비밀번호가 서로 달라요.');
+      if (!f.agree.checked) return formMessage(f, '필수 약관에 동의해 주세요.');
+      // 추가 정보 단계: 학생용·강사용 질문만 보이게, 숨긴 질문의 답은 비움
+      const role = f.elements.signupType.value;
+      document.querySelectorAll('#f-extra .q[data-for]').forEach(q => {
+        q.hidden = q.dataset.for !== role;
+        if (q.hidden) q.querySelectorAll('input').forEach(i => { i.checked = false; });
+      });
+      document.getElementById('extraSub').textContent = role === 'teacher'
+        ? '강의 배정에 쓰여요. 강사 계정은 관리자 승인 후 사용할 수 있어요.'
+        : '맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.';
+      showAuth('extra');   // 바로 가입하지 않고 추가 정보 단계로
+    });
+    document.getElementById('f-extra').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      // 보이는 필수 질문 중 화면 순서상 아직 안 고른 첫 질문을 알려줌 (생년월일은 숨은 칸에 값이 들어감)
+      const answered = q => q.querySelector('input:checked') || q.querySelector('input[type="hidden"]')?.value;
+      const missing = [...f.querySelectorAll('.q[data-msg]')].find(q => !q.hidden && !answered(q));
+      if (missing) return formMessage(f, missing.dataset.msg);
+      const teacher = document.getElementById('f-signup').elements.signupType.value === 'teacher';
+      formMessage(f, teacher
+        ? '강사 가입 정보 확인 완료! 서버 연결 후 관리자 승인을 거쳐 사용할 수 있어요.'
+        : '가입 정보 확인 완료! 서버 연결 후 실제 가입이 가능해요.', true);
+    });
 
     // 카드 2: 로그인 안 했으면 흐림 + "로그인을 해주세요"
     // ponytail: 로그인 기능이 아직 없어서 항상 로그아웃 상태. 로그인을 만들면 이 값만 실제 상태로 바꾸면 됨
