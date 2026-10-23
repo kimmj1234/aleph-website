@@ -15,6 +15,9 @@
       --main-light: #e6eeef;  /* 연한 메인 배경 */
       --accent: #A9B249;      /* 포인트: 면·밑줄·배지 전용. 흰색과 대비 2.29:1이라 글씨로 쓰지 않음, 위에 올리는 글씨는 메인(4.59:1) 또는 블랙 */
       --accent-text: #757B33; /* 흰 바탕 위에 연두 글씨가 꼭 필요할 때 (대비 4.5:1) */
+      --main-dark: #00363f;   /* 딥 틸 버튼에 마우스를 올렸을 때 */
+      --muted: #4f6b70;       /* 보조 글씨: 딥 틸 톤 회색 (흰 바탕 5.7:1, 연한 틸 바탕 4.9:1) */
+      --line: #7b979b;        /* 입력칸·선택지 테두리 (흰 바탕 3.1:1, 눌러야 하는 칸이 잘 보이게) */
       --black: #111111;       /* 포인트 */
 
       --navy: #03191b;        /* 인트로 전용 어두운 바탕 (배경 사진이 뜨기 전) */
@@ -155,7 +158,9 @@
       box-shadow: 0 40px 80px -30px rgba(0, 30, 35, 0.45), 0 0 0 1px rgba(0, 70, 81, 0.06);
     }
     .auth-form h3 { margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--black); }
-    .auth-form .sub { margin: 0 0 24px; font-size: 14px; font-weight: 300; color: #666; }
+    /* 제목 아래쪽에 연두 형광펜 (포인트 색, 글씨는 진한 색이라 대비 14:1) */
+    .auth-form h3 { display: inline-block; background: linear-gradient(transparent 62%, rgba(169, 178, 73, 0.5) 62%, rgba(169, 178, 73, 0.5) 92%, transparent 92%); }
+    .auth-form .sub { margin: 8px 0 24px; font-size: 14px; font-weight: 300; color: var(--muted); }
     .auth-form[hidden] { display: none; }
     /* 단계 전환: 내용을 숨긴 채 창 크기를 바꾸고, 다 바뀐 뒤 서서히 보여줌 (흔들림 없이) */
     .auth-form { transition: opacity .25s ease; }
@@ -163,22 +168,22 @@
 
     /* 회원가입 단계 표시 */
     .steps { display: flex; gap: 6px; margin: 0 0 18px; }
-    .steps span { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: #eef3f4; color: #7a8689; }
+    .steps span { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--main-light); color: var(--muted); }
     .steps .on { background: var(--main); color: var(--white); }
-    .steps .done { background: var(--main-light); color: var(--main); }
+    .steps .done { background: var(--accent); color: var(--main); }   /* 끝낸 단계: 연두 배지 + 딥 틸 글씨 (4.59:1) */
 
     /* 추가 정보: 선택형 질문 */
     .questions { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 32px; margin: 4px 0 0; }
     .q { margin: 0; padding: 0; border: 0; min-width: 0; }
     .q.full { grid-column: 1 / -1; }
     .q legend { padding: 0; margin-bottom: 10px; font-size: 15px; font-weight: 700; color: var(--black); }
-    .q legend em { margin-left: 6px; font-style: normal; font-size: 12px; font-weight: 400; color: #7a8689; }
+    .q legend em { margin-left: 6px; font-style: normal; font-size: 12px; font-weight: 400; color: var(--muted); }
     .opts { display: flex; flex-wrap: wrap; gap: 8px; }
     .opt { position: relative; cursor: pointer; }
     .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
     .opt span {
       display: inline-block; padding: 10px 18px; border-radius: 999px;
-      border: 1.5px solid #cfdadc; background: var(--white); font-size: 14px; color: #333;
+      border: 1.5px solid var(--line); background: var(--white); font-size: 14px; color: var(--black);
       transition: background .25s ease, border-color .25s ease, color .25s ease;
     }
     .opt:hover span { border-color: var(--main); color: var(--main); }
@@ -200,13 +205,13 @@
     .datepick { position: relative; }
     .date-field {
       box-sizing: border-box; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      padding: 12px 14px 12px 16px; border-radius: 12px; border: 1.5px solid var(--main); background: var(--white);
-      font: inherit; font-size: 15px; color: #8a9598; text-align: left; cursor: pointer;
+      padding: 12px 14px 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--white);
+      font: inherit; font-size: 15px; color: var(--muted); text-align: left; cursor: pointer;
       transition: box-shadow .2s ease;
     }
     .date-field.has-value { color: var(--black); }
     .date-field svg { flex-shrink: 0; color: var(--main); }
-    .date-field:focus-visible, .date-field[aria-expanded="true"] { outline: none; box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
+    .date-field:focus-visible, .date-field[aria-expanded="true"] { outline: none; border-color: var(--main); box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
     .cal {
       position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5;
       box-sizing: border-box; width: 300px; max-width: calc(100vw - 96px); padding: 14px;
@@ -218,16 +223,16 @@
     @keyframes calIn { from { opacity: 0; transform: translateY(6px); } }
     .cal-head { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
     .cal-head select {
-      flex: 1; min-width: 0; padding: 7px 6px; border-radius: 10px; border: 1.5px solid #cfdadc;
+      flex: 1; min-width: 0; padding: 7px 6px; border-radius: 10px; border: 1.5px solid var(--line);
       background: var(--white); font: inherit; font-size: 14px; color: var(--black); cursor: pointer;
     }
     .cal-nav {
       flex-shrink: 0; width: 32px; height: 32px; border: 0; border-radius: 9px; cursor: pointer;
-      background: #eef3f4; color: var(--main); font-size: 18px; line-height: 1;
+      background: var(--main-light); color: var(--main); font-size: 18px; line-height: 1;
     }
     .cal-nav:hover { background: var(--main-light); }
     .cal-week, .cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-    .cal-week span { padding: 4px 0; font-size: 12px; color: #7a8689; }
+    .cal-week span { padding: 4px 0; font-size: 12px; color: var(--muted); }
     .cal-week span:first-child { color: #c62828; }
     .cal-days button {
       aspect-ratio: 1; border: 0; border-radius: 50%; background: none; cursor: pointer;
@@ -237,14 +242,14 @@
     .cal-days button[aria-selected="true"] { background: var(--main); color: var(--white); }
     .cal-days button:disabled { color: #c8cfd1; background: none; cursor: default; }
     .field { display: block; margin-bottom: 14px; }
-    .field > span:first-child { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: #333; }
+    .field > span:first-child { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--black); }
     .field input {
       box-sizing: border-box; width: 100%; padding: 13px 16px; border-radius: 12px;
-      border: 1.5px solid var(--main); background: var(--white);
+      border: 1.5px solid var(--line); background: var(--white);
       font: inherit; font-size: 15px; color: var(--black);
       transition: box-shadow .2s ease;
     }
-    .field input:focus { outline: none; box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
+    .field input:focus { outline: none; border-color: var(--main); box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
 
     /* 비밀번호 표시하기 (눈 아이콘) */
     .pw { position: relative; display: block; }
@@ -252,7 +257,7 @@
     .pw-toggle {
       position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
       width: 40px; height: 40px; display: grid; place-items: center;
-      appearance: none; border: 0; border-radius: 10px; background: none; cursor: pointer; color: #6b7a7d;
+      appearance: none; border: 0; border-radius: 10px; background: none; cursor: pointer; color: var(--muted);
       transition: background .2s ease, color .2s ease;
     }
     .pw-toggle:hover { background: var(--main-light); color: var(--main); }
@@ -263,7 +268,7 @@
     /* 학생 로그인 / 강사 로그인 선택 */
     .login-type {
       position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
-      margin: 0 0 22px; padding: 4px; border-radius: 999px; background: #eef3f4;
+      margin: 0 0 22px; padding: 4px; border-radius: 999px; background: var(--main-light);
     }
     /* 선택 표시(메인 색 알약)가 버튼 사이를 천천히 미끄러지듯 이동 */
     .login-type::before {
@@ -275,23 +280,23 @@
     .login-type button {
       position: relative; z-index: 1;
       appearance: none; border: 0; padding: 12px; border-radius: 999px; cursor: pointer;
-      background: transparent; font: inherit; font-size: 14px; font-weight: 500; color: #5a6669;
+      background: transparent; font: inherit; font-size: 14px; font-weight: 500; color: var(--muted);
       transition: color .45s ease .1s;
     }
     .login-type button:hover { color: var(--main); }
     .login-type button[aria-pressed="true"] { color: var(--white); }
     .login-type button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
-    .check { display: flex; align-items: flex-start; gap: 10px; margin: 6px 0 4px; font-size: 13px; color: #444; cursor: pointer; }
+    .check { display: flex; align-items: flex-start; gap: 10px; margin: 6px 0 4px; font-size: 13px; color: var(--black); cursor: pointer; }
     .check input { margin-top: 2px; accent-color: var(--main); }
     .auth-submit {
       width: 100%; margin-top: 14px; padding: 15px; border-radius: 999px; border: 0; cursor: pointer;
       background: var(--main); color: var(--white); font: inherit; font-size: 15px; font-weight: 700;
       transition: background .2s ease;
     }
-    .auth-submit:hover { background: var(--black); }
+    .auth-submit:hover { background: var(--main-dark); }
     .form-msg { min-height: 20px; margin: 12px 0 0; font-size: 13px; text-align: center; color: #c62828; }
     .form-msg.ok { color: var(--main); }
-    .switch { margin: 14px 0 0; font-size: 13px; text-align: center; color: #666; }
+    .switch { margin: 14px 0 0; font-size: 13px; text-align: center; color: var(--muted); }
     .switch button { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--main); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
     .q[hidden] { display: none; }
 
@@ -431,7 +436,7 @@
       transition: background .2s ease, transform .2s ease;
     }
     .login-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .login-btn:hover { background: #00363f; transform: translateY(-1px); }
+    .login-btn:hover { background: var(--main-dark); transform: translateY(-1px); }
 
     .nav a:focus-visible, .brand:focus-visible, .login-btn:focus-visible, .menu-btn:focus-visible {
       outline: 2px solid var(--main); outline-offset: 2px;
