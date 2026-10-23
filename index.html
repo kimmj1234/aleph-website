@@ -242,6 +242,8 @@
     .cal-days button[aria-selected="true"] { background: var(--main); color: var(--white); }
     .cal-days button:disabled { color: #c8cfd1; background: none; cursor: default; }
     .field { display: block; margin-bottom: 14px; }
+    .field[hidden] { display: none; }
+    .field-hint { margin-left: 6px; font-style: normal; font-size: 12px; font-weight: 400; color: var(--muted); }
     .field > span:first-child { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 500; color: var(--black); }
     .field input {
       box-sizing: border-box; width: 100%; padding: 13px 16px; border-radius: 12px;
@@ -551,7 +553,7 @@
     <div class="auth-body">
 
       <form class="auth-form" id="f-login" novalidate>
-        <h3>다시 만나서 반가워요</h3>
+        <h3>만나서 반가워요</h3>
         <p class="sub">학생 아이디로 로그인하세요.</p>
         <div class="login-type" role="group" aria-label="로그인 유형" data-active="student" data-field="loginType" data-sub="아이디로 로그인하세요.">
           <button type="button" data-type="student" aria-pressed="true">학생 로그인</button>
@@ -560,6 +562,7 @@
         <input type="hidden" name="loginType" value="student">
         <label class="field"><span>아이디</span><input type="text" name="userid" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
         <label class="field"><span>비밀번호</span><input type="password" name="password" autocomplete="current-password" required></label>
+        <label class="field" data-for="teacher" hidden><span>강사 고유 코드 <em class="field-hint">관리자에게 발급받은 코드</em></span><input type="password" name="teacherCode" data-what="고유 코드" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
         <button class="auth-submit" type="submit">로그인</button>
         <p class="form-msg" role="status"></p>
         <p class="switch">아직 계정이 없나요? <button type="button" data-auth="signup">회원가입</button></p>
@@ -578,6 +581,7 @@
         <label class="field"><span>아이디 (영문·숫자 4~16자)</span><input type="text" name="userid" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="4" maxlength="16" required></label>
         <label class="field"><span>비밀번호 (8자 이상)</span><input type="password" name="password" autocomplete="new-password" minlength="8" required></label>
         <label class="field"><span>비밀번호 확인</span><input type="password" name="password2" autocomplete="new-password" required></label>
+        <label class="field" data-for="teacher" hidden><span>강사 고유 코드 <em class="field-hint">관리자에게 발급받은 코드</em></span><input type="password" name="teacherCode" data-what="고유 코드" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
         <label class="check"><input type="checkbox" name="agree" required> 이용약관 및 개인정보 수집·이용에 동의합니다 (필수)</label>
         <button class="auth-submit" type="submit">다음</button>
         <p class="form-msg" role="status"></p>
@@ -904,6 +908,10 @@
         group.dataset.active = b.dataset.type;   // 선택 표시가 이쪽으로 미끄러져 감
         form.elements[group.dataset.field].value = b.dataset.type;
         if (group.dataset.sub) form.querySelector('.sub').textContent = `${LOGIN_TYPES[b.dataset.type]} ${group.dataset.sub}`;
+        form.querySelectorAll('.field[data-for]').forEach(el => {
+          el.hidden = el.dataset.for !== b.dataset.type;
+          if (el.hidden) el.querySelector('input').value = '';
+        });
         formMessage(form, '');
       }));
     });
@@ -914,7 +922,8 @@
     function setPwVisible(input, btn, show) {
       input.type = show ? 'text' : 'password';
       btn.setAttribute('aria-pressed', show);
-      btn.setAttribute('aria-label', show ? '비밀번호 숨기기' : '비밀번호 표시');
+      const what = input.dataset.what || '비밀번호';
+      btn.setAttribute('aria-label', show ? `${what} 숨기기` : `${what} 표시`);
     }
     const pwToggles = [];
     authModal.querySelectorAll('input[type="password"]').forEach(input => {
@@ -1025,6 +1034,7 @@
       const f = e.target;
       if (!f.userid.value.trim()) return formMessage(f, '아이디를 입력해 주세요.');
       if (!f.password.value) return formMessage(f, '비밀번호를 입력해 주세요.');
+      if (f.elements.loginType.value === 'teacher' && !f.teacherCode.value.trim()) return formMessage(f, '강사 고유 코드를 입력해 주세요.');
       logIn(f.elements.loginType.value);
     });
     document.getElementById('f-signup').addEventListener('submit', e => {
@@ -1034,6 +1044,7 @@
       if (!idOk(f.userid.value.trim())) return formMessage(f, '아이디는 영문·숫자 4~16자로 입력해 주세요.');
       if (f.password.value.length < 8) return formMessage(f, '비밀번호는 8자 이상이어야 해요.');
       if (f.password.value !== f.password2.value) return formMessage(f, '비밀번호가 서로 달라요.');
+      if (f.elements.signupType.value === 'teacher' && !f.teacherCode.value.trim()) return formMessage(f, '관리자에게 발급받은 강사 고유 코드를 입력해 주세요.');
       if (!f.agree.checked) return formMessage(f, '필수 약관에 동의해 주세요.');
       // 추가 정보 단계: 학생용·강사용 질문만 보이게, 숨긴 질문의 답은 비움
       const role = f.elements.signupType.value;
