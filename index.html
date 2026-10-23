@@ -303,7 +303,7 @@
     .demo-note { margin: 10px 0 0; font-size: 12px; text-align: center; color: var(--muted); }
     .switch { margin: 14px 0 0; font-size: 13px; text-align: center; color: var(--muted); }
     .switch button { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--main); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-    .q[hidden] { display: none; }
+    .steps[hidden] { display: none; }   /* 강사 회원가입은 1단계뿐이라 단계 표시를 숨김 */
 
     /* 강사 고유 코드 관리 창 (관리자 전용) */
     .admin-dialog {
@@ -635,7 +635,7 @@
       </form>
 
       <form class="auth-form" id="f-signup" novalidate hidden>
-        <div class="steps" aria-label="회원가입 단계"><span class="on" aria-current="step">1 기본 정보</span><span>2 추가 정보</span></div>
+        <div class="steps" id="signupSteps" aria-label="회원가입 단계"><span class="on" aria-current="step">1 기본 정보</span><span>2 추가 정보</span></div>
         <h3>ALEPH와 함께 시작해요</h3>
         <p class="sub">기본 정보를 입력하고 다음 단계로 넘어가요.</p>
         <div class="login-type" role="group" aria-label="회원 유형" data-active="student" data-field="signupType">
@@ -649,7 +649,7 @@
         <label class="field"><span>비밀번호 확인</span><input type="password" name="password2" autocomplete="new-password" required></label>
         <label class="field" data-for="teacher" hidden><span>강사 고유 코드 <em class="field-hint">관리자에게 발급받은 코드</em></span><input type="password" name="teacherCode" data-what="고유 코드" autocomplete="off" autocapitalize="characters" spellcheck="false"></label>
         <label class="check"><input type="checkbox" name="agree" required> 이용약관 및 개인정보 수집·이용에 동의합니다 (필수)</label>
-        <button class="auth-submit" type="submit">다음</button>
+        <button class="auth-submit" id="signupSubmit" type="submit">다음</button>
         <p class="form-msg" role="status"></p>
         <p class="switch">이미 계정이 있나요? <button type="button" data-auth="login">로그인</button></p>
       </form>
@@ -658,11 +658,11 @@
       <form class="auth-form" id="f-extra" novalidate hidden>
         <div class="steps" aria-label="회원가입 단계"><span class="done">1 기본 정보</span><span class="on" aria-current="step">2 추가 정보</span></div>
         <h3>조금만 더 알려주세요</h3>
-        <p class="sub" id="extraSub">맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.</p>
+        <p class="sub">맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.</p>
 
         <div class="questions">
-          <!-- data-for: 그 회원 유형일 때만 보임 / data-msg: 필수 질문의 안내 문구 -->
-          <fieldset class="q" data-for="student" data-msg="지금 어떤 과정에 있는지 골라 주세요.">
+          <!-- data-msg: 필수 질문의 안내 문구 -->
+          <fieldset class="q" data-msg="지금 어떤 과정에 있는지 골라 주세요.">
             <legend>지금 어떤 과정에 있나요? <em>필수</em></legend>
             <div class="opts">
               <label class="opt"><input type="radio" name="grade" value="elementary"><span>초등학생</span></label>
@@ -671,7 +671,7 @@
               <label class="opt"><input type="radio" name="grade" value="adult"><span>대학생·성인</span></label>
             </div>
           </fieldset>
-          <fieldset class="q" data-for="student" data-msg="코딩 경험을 골라 주세요.">
+          <fieldset class="q" data-msg="코딩 경험을 골라 주세요.">
             <legend>코딩 경험은 어느 정도인가요? <em>필수</em></legend>
             <div class="opts">
               <label class="opt"><input type="radio" name="coding" value="none"><span>처음이에요</span></label>
@@ -679,7 +679,7 @@
               <label class="opt"><input type="radio" name="coding" value="good"><span>자신 있어요</span></label>
             </div>
           </fieldset>
-          <fieldset class="q full" data-for="student" data-msg="관심 분야를 1개 이상 골라 주세요.">
+          <fieldset class="q full" data-msg="관심 분야를 1개 이상 골라 주세요.">
             <legend>관심 있는 분야를 골라 주세요 <em>1개 이상 · 복수 선택</em></legend>
             <div class="opts">
               <label class="opt"><input type="checkbox" name="interest" value="ai-use"><span>AI활용</span></label>
@@ -688,26 +688,6 @@
               <label class="opt"><input type="checkbox" name="interest" value="undecided"><span>미정</span></label>
               <label class="opt"><input type="checkbox" name="interest" value="study"><span>학습</span></label>
               <label class="opt"><input type="checkbox" name="interest" value="license"><span>자격증</span></label>
-            </div>
-          </fieldset>
-          <fieldset class="q full" data-for="teacher" data-msg="담당할 수 있는 분야를 1개 이상 골라 주세요.">
-            <legend>담당할 수 있는 분야 <em>1개 이상 · 복수 선택</em></legend>
-            <div class="opts">
-              <label class="opt"><input type="checkbox" name="subject" value="python"><span>파이썬</span></label>
-              <label class="opt"><input type="checkbox" name="subject" value="ai-use"><span>AI활용</span></label>
-              <label class="opt"><input type="checkbox" name="subject" value="data"><span>데이터 분석</span></label>
-              <label class="opt"><input type="checkbox" name="subject" value="web"><span>웹 개발</span></label>
-              <label class="opt"><input type="checkbox" name="subject" value="license"><span>자격증</span></label>
-              <label class="opt"><input type="checkbox" name="subject" value="career"><span>취업 컨설팅</span></label>
-            </div>
-          </fieldset>
-          <fieldset class="q full" data-for="teacher" data-msg="강의 경력을 골라 주세요.">
-            <legend>강의 경력 <em>필수</em></legend>
-            <div class="opts">
-              <label class="opt"><input type="radio" name="career" value="lt1"><span>1년 미만</span></label>
-              <label class="opt"><input type="radio" name="career" value="1to3"><span>1~3년</span></label>
-              <label class="opt"><input type="radio" name="career" value="3to5"><span>3~5년</span></label>
-              <label class="opt"><input type="radio" name="career" value="gt5"><span>5년 이상</span></label>
             </div>
           </fieldset>
           <fieldset class="q full">
@@ -1164,44 +1144,23 @@
         setBusy(f, false);
       }
     });
-    document.getElementById('f-signup').addEventListener('submit', e => {
-      e.preventDefault();
-      const f = e.target;
-      if (!f.name.value.trim()) return formMessage(f, '이름을 입력해 주세요.');
-      if (!idOk(f.userid.value.trim())) return formMessage(f, '아이디는 영문·숫자 4~16자로 입력해 주세요.');
-      if (f.password.value.length < 8) return formMessage(f, '비밀번호는 8자 이상이어야 해요.');
-      if (f.password.value !== f.password2.value) return formMessage(f, '비밀번호가 서로 달라요.');
-      if (f.elements.signupType.value === 'teacher' && !f.teacherCode.value.trim()) return formMessage(f, '관리자에게 발급받은 강사 고유 코드를 입력해 주세요.');
-      if (!f.agree.checked) return formMessage(f, '필수 약관에 동의해 주세요.');
-      // 추가 정보 단계: 학생용·강사용 질문만 보이게, 숨긴 질문의 답은 비움
-      const role = f.elements.signupType.value;
-      document.querySelectorAll('#f-extra .q[data-for]').forEach(q => {
-        q.hidden = q.dataset.for !== role;
-        if (q.hidden) q.querySelectorAll('input').forEach(i => { i.checked = false; });
-      });
-      document.getElementById('extraSub').textContent = role === 'teacher'
-        ? '강의 배정에 쓰여요. 고르기만 하면 금방 끝나요.'
-        : '맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.';
-      showAuth('extra');   // 바로 가입하지 않고 추가 정보 단계로
-    });
-    document.getElementById('f-extra').addEventListener('submit', async e => {
-      e.preventDefault();
-      const f = e.target;
-      // 보이는 필수 질문 중 화면 순서상 아직 안 고른 첫 질문을 알려줌 (생년월일은 숨은 칸에 값이 들어감)
-      const answered = q => q.querySelector('input:checked') || q.querySelector('input[type="hidden"]')?.value;
-      const missing = [...f.querySelectorAll('.q[data-msg]')].find(q => !q.hidden && !answered(q));
-      if (missing) return formMessage(f, missing.dataset.msg);
-      const sf = document.getElementById('f-signup');
+    // 강사 회원가입: 추가 정보 단계 없이 1단계에서 바로 가입 → 단계 표시를 숨기고 버튼은 '가입하기'
+    const signupForm = document.getElementById('f-signup');
+    signupForm.querySelectorAll('.login-type [data-type]').forEach(b => b.addEventListener('click', () => {
+      const teacher = b.dataset.type === 'teacher';
+      document.getElementById('signupSteps').hidden = teacher;
+      document.getElementById('signupSubmit').textContent = teacher ? '가입하기' : '다음';
+    }));
+
+    // 실제 가입 (서버 또는 데모). 끝나면 같은 회원 유형으로 로그인 화면으로 이동
+    // msgForm: 진행 문구를 보여줄 화면(강사는 1단계, 학생은 2단계)
+    async function signUp(msgForm, extra) {
+      const sf = signupForm;
       const role = sf.elements.signupType.value;
       if (!DEMO) {
-        if (!db) return formMessage(f, '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.');
-        // 추가 정보 답변 모음 (보이는 질문만)
-        const extra = { birth: f.elements.birth.value };
-        f.querySelectorAll('.q:not([hidden]) input:checked').forEach(i => {
-          extra[i.name] = i.type === 'checkbox' ? [...(extra[i.name] || []), i.value] : i.value;
-        });
-        setBusy(f, true);
-        formMessage(f, '가입하고 있어요…', true);
+        if (!db) return formMessage(msgForm, '서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.');
+        setBusy(msgForm, true);
+        formMessage(msgForm, '가입하고 있어요…', true);
         const { error } = await db.auth.signUp({
           email: toEmail(sf.userid.value),
           password: sf.password.value,
@@ -1210,11 +1169,11 @@
             teacher_code: role === 'teacher' ? sf.teacherCode.value : null,
           } },
         });
-        setBusy(f, false);
+        setBusy(msgForm, false);
         if (error) {
-          // 강사 코드가 틀리면 서버(가입 트리거)가 가입을 막음 → 코드를 입력한 1단계로 돌아가 알려줌
+          // 강사 코드가 틀리면 서버(가입 트리거)가 가입을 막음 → 코드를 입력한 1단계에서 알려줌
           const dup = error.code === 'user_already_exists' || /already registered/i.test(error.message);
-          await showAuth('signup');
+          if (msgForm !== sf) await showAuth('signup');
           return formMessage(sf, dup ? '이미 있는 아이디예요. 다른 아이디를 써 주세요.'
             : role === 'teacher' ? '강사 고유 코드가 맞지 않거나 이미 사용된 코드예요. 관리자에게 확인해 주세요.'
             : '가입 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요.');
@@ -1222,7 +1181,7 @@
         await db.auth.signOut();   // 가입하면 자동 로그인되지만, 강사 코드 확인을 위해 로그인 화면을 거치게 함
       }
       sf.password.value = sf.password2.value = sf.teacherCode.value = '';
-      formMessage(f, '가입 완료! 로그인 화면으로 이동해요.', true);
+      formMessage(msgForm, '가입 완료! 로그인 화면으로 이동해요.', true);
       await wait(1200);
       const lf = document.getElementById('f-login');
       lf.querySelector(`[data-type="${role}"]`).click();
@@ -1231,6 +1190,33 @@
       formMessage(lf, role === 'teacher'
         ? '가입이 완료됐어요. 로그인할 때도 강사 고유 코드를 입력해 주세요.'
         : '가입이 완료됐어요. 로그인해 주세요.', true);
+    }
+
+    signupForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      if (!f.name.value.trim()) return formMessage(f, '이름을 입력해 주세요.');
+      if (!idOk(f.userid.value.trim())) return formMessage(f, '아이디는 영문·숫자 4~16자로 입력해 주세요.');
+      if (f.password.value.length < 8) return formMessage(f, '비밀번호는 8자 이상이어야 해요.');
+      if (f.password.value !== f.password2.value) return formMessage(f, '비밀번호가 서로 달라요.');
+      if (f.elements.signupType.value === 'teacher' && !f.teacherCode.value.trim()) return formMessage(f, '관리자에게 발급받은 강사 고유 코드를 입력해 주세요.');
+      if (!f.agree.checked) return formMessage(f, '필수 약관에 동의해 주세요.');
+      if (f.elements.signupType.value === 'teacher') return signUp(f, {});
+      showAuth('extra');   // 학생은 추가 정보 단계로
+    });
+    document.getElementById('f-extra').addEventListener('submit', e => {
+      e.preventDefault();
+      const f = e.target;
+      // 필수 질문 중 화면 순서상 아직 안 고른 첫 질문을 알려줌 (생년월일은 숨은 칸에 값이 들어감)
+      const answered = q => q.querySelector('input:checked') || q.querySelector('input[type="hidden"]')?.value;
+      const missing = [...f.querySelectorAll('.q[data-msg]')].find(q => !answered(q));
+      if (missing) return formMessage(f, missing.dataset.msg);
+      // 추가 정보 답변 모음
+      const extra = { birth: f.elements.birth.value };
+      f.querySelectorAll('.q input:checked').forEach(i => {
+        extra[i.name] = i.type === 'checkbox' ? [...(extra[i.name] || []), i.value] : i.value;
+      });
+      signUp(f, extra);
     });
 
     // ── 관리자: 강사 고유 코드 발급·관리 ──
