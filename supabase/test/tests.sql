@@ -1,11 +1,19 @@
 \set ON_ERROR_STOP 0
-\echo '== 1. student signup'
+\echo '== 1. admin bootstrap: first code from SQL editor -> teacher signup -> promote; student signup'
+insert into public.teacher_codes default values returning code as first_code \gset
 insert into auth.users (id, email, raw_user_meta_data) values
- ('00000000-0000-0000-0000-00000000000a', 'admin@aleph.local', '{"userid":"admin","name":"관리자","role":"student"}');
+ ('00000000-0000-0000-0000-00000000000a', 'admin@aleph.local',
+  json_build_object('userid','admin','name','관리자','role','teacher','teacher_code', :'first_code')::jsonb);
+update public.profiles set role = 'admin' where userid = 'admin';
 insert into auth.users (id, email, raw_user_meta_data) values
  ('00000000-0000-0000-0000-00000000000b', 'kim@aleph.local', '{"userid":"kim","name":"김학생","role":"student","extra":{"grade":"high"}}');
-\echo '== 2. admin role via sql editor, then signup as admin must fail'
-update public.profiles set role = 'admin' where userid = 'admin';
+\echo '== 1b. admin passes teacher-login code check with own first code'
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', true);
+select public.verify_teacher_code(:'first_code') as admin_code_ok;
+rollback;
+\echo '== 2. signup as admin must fail'
 insert into auth.users (email, raw_user_meta_data) values ('hack@aleph.local', '{"userid":"hack","name":"x","role":"admin"}');
 \echo '== 3. teacher signup with no/invalid code must fail'
 insert into auth.users (email, raw_user_meta_data) values ('t0@aleph.local', '{"userid":"t0","name":"x","role":"teacher"}');
@@ -25,14 +33,14 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', true);
 insert into public.teacher_codes default values returning length(code) as code_len, created_by;
 commit;
-select code as issued from public.teacher_codes \gset
+select code as issued from public.teacher_codes where used_by is null \gset
 
 \echo '== 6. teacher signup with lowercase+spaces code succeeds'
 insert into auth.users (id, email, raw_user_meta_data) values
  ('00000000-0000-0000-0000-00000000000c', 'park@aleph.local',
   json_build_object('userid','park','name','박강사','role','teacher','teacher_code', ' ' || lower(:'issued') || ' ')::jsonb);
 select userid, role from public.profiles where userid = 'park';
-select used_by is not null as used from public.teacher_codes;
+select used_by is not null as used from public.teacher_codes where code = :'issued';
 \echo '== 7. same code again must fail'
 insert into auth.users (email, raw_user_meta_data) values ('lee@aleph.local',
   json_build_object('userid','lee','name','x','role','teacher','teacher_code', :'issued')::jsonb);

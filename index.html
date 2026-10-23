@@ -1149,12 +1149,13 @@
         }
         await loadMe();
         if (!me) return fail('회원 정보를 찾지 못했어요. 관리자에게 문의해 주세요.');
+        // 관리자도 강사로 가입한 계정이라 강사 로그인(고유 코드 포함)으로만 들어옴
         if (type === 'teacher') {
-          if (me.role !== 'teacher') return fail('강사 계정이 아니에요. 학생 로그인을 이용해 주세요.');
+          if (me.role === 'student') return fail('강사 계정이 아니에요. 학생 로그인을 이용해 주세요.');
           const { data: ok } = await db.rpc('verify_teacher_code', { input: f.teacherCode.value });
           if (!ok) return fail('강사 고유 코드가 맞지 않아요.');
-        } else if (me.role === 'teacher') {
-          return fail('강사 계정은 강사 로그인을 이용해 주세요.');
+        } else if (me.role !== 'student') {
+          return fail('강사·관리자 계정은 강사 로그인을 이용해 주세요.');
         }
         f.password.value = '';
         f.teacherCode.value = '';

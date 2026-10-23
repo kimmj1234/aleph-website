@@ -10,7 +10,7 @@
 -- 권한 원칙
 --   - 역할(role)은 profiles 에만 저장하고, 사용자가 고칠 수 있는 user_metadata 로는 권한을 판단하지 않음
 --   - 브라우저(authenticated)는 꼭 필요한 것만: 자기 프로필 읽기, 관리자만 코드 읽기·발급·삭제
---   - 관리자 지정은 사이트가 아니라 이 SQL Editor 에서만 (맨 아래 참고)
+--   - 관리자는 강사로 가입한 뒤 이 SQL Editor 에서만 지정 (맨 아래 참고)
 
 create schema if not exists private;
 
@@ -132,7 +132,11 @@ $$;
 revoke execute on function public.verify_teacher_code(text) from public, anon;
 grant execute on function public.verify_teacher_code(text) to authenticated;
 
--- ───────────── 관리자 지정 (가입 후 SQL Editor 에서 한 번) ─────────────
--- 1) 사이트에서 '학생 회원가입'으로 관리자용 아이디를 만든 뒤
--- 2) 아래 줄의 'admin' 을 그 아이디로 바꿔 실행
--- update public.profiles set role = 'admin' where userid = 'admin';
+-- ───────────── 관리자 만들기 (처음 한 번, SQL Editor 에서) ─────────────
+-- 관리자도 '강사 회원가입'으로 만듦. 아직 코드를 발급할 관리자가 없으니 첫 코드만 여기서 만듦
+-- 1) 첫 강사 고유 코드 만들기 (결과로 나온 코드를 복사)
+--    insert into public.teacher_codes default values returning code;
+-- 2) 사이트에서 '강사 회원가입' + 1)의 코드로 관리자용 아이디를 만든 뒤
+-- 3) 아래 줄의 'admin' 을 그 아이디로 바꿔 실행
+--    update public.profiles set role = 'admin' where userid = 'admin';
+-- 4) 관리자는 '강사 로그인'(아이디·비밀번호 + 1)의 코드)으로 로그인
