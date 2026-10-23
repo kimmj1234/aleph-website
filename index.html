@@ -154,12 +154,6 @@
       background: var(--white);
       box-shadow: 0 40px 80px -30px rgba(0, 30, 35, 0.45), 0 0 0 1px rgba(0, 70, 81, 0.06);
     }
-    .auth-close {
-      position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
-      appearance: none; border: 0; border-radius: 50%; cursor: pointer;
-      background: #f1f4f5; color: #555; font-size: 20px; line-height: 1;
-    }
-    .auth-close:hover { background: var(--main-light); color: var(--main); }
     .auth-form h3 { margin: 0 0 6px; font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: var(--black); }
     .auth-form .sub { margin: 0 0 24px; font-size: 14px; font-weight: 300; color: #666; }
     .auth-form[hidden] { display: none; }
@@ -503,7 +497,7 @@
         <button class="menu-btn" type="button" popovertarget="menuPop" aria-label="메뉴 열기">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <button class="login-btn" type="button" data-auth="login"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>로그인</button>
+        <button class="login-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>로그인</button>
       </div>
     </header>
     <div class="menu-pop" id="menuPop" popover>
@@ -550,7 +544,6 @@
 
   <!-- 로그인 창 하나. 학생/강사 선택, 회원가입은 같은 창 안에서 내용만 바뀜 (서버 연결 전: 입력 확인까지만 동작) -->  <dialog class="auth-modal" id="authModal" aria-label="로그인">
     <div class="auth-body">
-      <button class="auth-close" type="button" aria-label="닫기">×</button>
 
       <form class="auth-form" id="f-login" novalidate>
         <h3>다시 만나서 반가워요</h3>
@@ -710,9 +703,11 @@
         timers.push(setTimeout(() => intro.classList.add(cls), reduce ? 0 : at)));
     }
 
-    // 클릭하거나 스크롤을 내리면 (애니메이션 도중이어도) 메인 홈페이지로 넘어감
+    // 클릭하거나 스크롤을 내리면 (애니메이션 도중이어도) 다음으로 넘어감.
+    // 로그인 전이면 로그인 창부터 띄우고, 로그인해야만 메인 홈페이지로 넘어감
     function enter() {
-      if (intro.classList.contains('leaving')) return;
+      if (intro.classList.contains('leaving') || authModal.open) return;
+      if (!loggedIn()) return showAuth('login');
       timers.forEach(clearTimeout); timers = [];
       intro.classList.add('leaving');
     }
@@ -881,8 +876,7 @@
     }
     document.querySelectorAll('[data-auth]').forEach(b =>
       b.addEventListener('click', () => showAuth(b.dataset.auth)));
-    authModal.querySelector('.auth-close').addEventListener('click', () => authModal.close());
-    // 창은 오른쪽 위 X로만 닫힘: 바깥 클릭으로는 닫히지 않고, Esc 키도 막음
+    // 로그인해야만 닫힘: X 버튼 없음, 바깥 클릭·Esc 키도 막음
     authModal.addEventListener('keydown', e => {
       if (e.key !== 'Escape') return;
       e.preventDefault();
@@ -1000,13 +994,33 @@
     // 아이디: 영문·숫자(밑줄 허용) 4~16자
     const idOk = v => /^[A-Za-z0-9_]{4,16}$/.test(v);
 
-    // 아직 서버가 없어서 입력값 확인까지만 하고, 실제 로그인·가입은 하지 않음
+    // 로그인 상태: 이 탭을 닫으면 풀림 (새로고침은 유지)
+    // ponytail: 서버 연결 전이라 아이디·비밀번호를 입력하기만 하면 로그인으로 침 (화면 흐름 확인용, 보안 없음).
+    //           서버가 생기면 logIn 앞에서 실제 계정 확인을 하도록 바꿔야 함
+    const LOGIN_KEY = 'aleph-login';
+    const loggedIn = () => { try { return !!sessionStorage.getItem(LOGIN_KEY); } catch { return false; } };
+    const loginBtn = document.querySelector('.topbar .login-btn');
+    const updateLoginBtn = () => { loginBtn.lastChild.textContent = loggedIn() ? '로그아웃' : '로그인'; };
+    function logIn(type) {
+      try { sessionStorage.setItem(LOGIN_KEY, type); } catch {}
+      authModal.close();
+      updateLoginBtn();
+      enter();   // 인트로가 사라지고 메인으로
+    }
+    // 메뉴바 버튼: 로그인한 상태면 '로그아웃' → 누르면 처음(인트로)부터 다시
+    loginBtn.addEventListener('click', () => {
+      if (!loggedIn()) return showAuth('login');
+      try { sessionStorage.removeItem(LOGIN_KEY); } catch {}
+      location.reload();
+    });
+    updateLoginBtn();
+
     document.getElementById('f-login').addEventListener('submit', e => {
       e.preventDefault();
       const f = e.target;
       if (!f.userid.value.trim()) return formMessage(f, '아이디를 입력해 주세요.');
       if (!f.password.value) return formMessage(f, '비밀번호를 입력해 주세요.');
-      formMessage(f, `${LOGIN_TYPES[f.elements.loginType.value]} 로그인 입력 확인 완료! 서버 연결 후 실제 로그인이 가능해요.`, true);
+      logIn(f.elements.loginType.value);
     });
     document.getElementById('f-signup').addEventListener('submit', e => {
       e.preventDefault();
@@ -1027,17 +1041,22 @@
         : '맞춤 수업 추천에 쓰여요. 고르기만 하면 금방 끝나요.';
       showAuth('extra');   // 바로 가입하지 않고 추가 정보 단계로
     });
-    document.getElementById('f-extra').addEventListener('submit', e => {
+    document.getElementById('f-extra').addEventListener('submit', async e => {
       e.preventDefault();
       const f = e.target;
       // 보이는 필수 질문 중 화면 순서상 아직 안 고른 첫 질문을 알려줌 (생년월일은 숨은 칸에 값이 들어감)
       const answered = q => q.querySelector('input:checked') || q.querySelector('input[type="hidden"]')?.value;
       const missing = [...f.querySelectorAll('.q[data-msg]')].find(q => !q.hidden && !answered(q));
       if (missing) return formMessage(f, missing.dataset.msg);
-      const teacher = document.getElementById('f-signup').elements.signupType.value === 'teacher';
-      formMessage(f, teacher
-        ? '강사 가입 정보 확인 완료! 서버 연결 후 관리자 승인을 거쳐 사용할 수 있어요.'
-        : '가입 정보 확인 완료! 서버 연결 후 실제 가입이 가능해요.', true);
+      const role = document.getElementById('f-signup').elements.signupType.value;
+      formMessage(f, '가입 정보 확인 완료! 로그인 화면으로 이동해요.', true);
+      await wait(1200);
+      const lf = document.getElementById('f-login');
+      lf.querySelector(`[data-type="${role}"]`).click();
+      await showAuth('login');
+      formMessage(lf, role === 'teacher'
+        ? '가입이 완료됐어요. 강사 계정은 서버 연결 후 관리자 승인을 거쳐 사용할 수 있어요.'
+        : '가입이 완료됐어요. 로그인해 주세요.', true);
     });
 
     // 최초 접속·새로고침 모두 매번 재생. 배경 이미지가 준비된 뒤 시작
