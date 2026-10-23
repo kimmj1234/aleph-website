@@ -161,8 +161,12 @@
     /* 위 메뉴바는 밝은 면 하나(.nav-pill)가 메뉴 사이를 미끄러져 이동.
        굵기가 바뀌면 글자 폭이 달라져 옆 메뉴가 들썩이므로 굵기는 그대로 두고 밝기로만 구분 */
     .topbar > .nav { position: relative; }
-    .topbar > .nav a { position: relative; z-index: 1; color: rgba(255, 255, 255, 0.78); }
-    .topbar > .nav a[aria-current="page"] { background: none; font-weight: 500; color: var(--white); }
+    /* 투명한 유리 위에서도 또렷하게: 완전한 흰색 + 글자 테두리처럼 붙는 짙은 그림자 */
+    .topbar > .nav a {
+      position: relative; z-index: 1; color: var(--white); font-weight: 600;
+      text-shadow: 0 0 2px rgba(0, 20, 24, 0.75), 0 1px 4px rgba(0, 20, 24, 0.6);
+    }
+    .topbar > .nav a[aria-current="page"] { background: none; font-weight: 600; color: var(--white); }
     .nav-pill {
       position: absolute; top: 0; bottom: 0; left: 0; width: 0;
       border-radius: 999px; background: rgba(255, 255, 255, 0.22); pointer-events: none;
