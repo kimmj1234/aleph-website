@@ -301,28 +301,6 @@
     .switch button { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--main); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
     .q[hidden] { display: none; }
 
-    /* 카드 2: 로그인한 학생 전용. 로그인 전에는 내용 전체를 흐리게 덮고 가운데에 안내 문구 */
-    .member-card { position: relative; place-items: stretch; padding: 0; overflow: hidden; }
-    .member-body { display: flex; flex-direction: column; gap: 14px; height: 100%; padding: 28px 24px; box-sizing: border-box; }
-    .sk { display: block; height: 14px; border-radius: 7px; background: var(--main-light); }
-    .sk.w50 { width: 50%; } .sk.w60 { width: 60%; height: 20px; background: rgba(0, 70, 81, 0.18); }
-    .sk.w75 { width: 75%; } .sk.w80 { width: 80%; } .sk.w90 { width: 90%; }
-    .sk.box { flex: 1; height: auto; min-height: 60px; border-radius: 16px; background: linear-gradient(135deg, var(--main-light), rgba(169, 178, 73, 0.25)); }
-    .login-lock {
-      position: absolute; inset: 0; display: grid; place-items: center;
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    }
-    /* 안내 문구를 누르면 로그인 창이 열림 */
-    .login-lock button {
-      appearance: none; border: 0; cursor: pointer; padding: 10px 18px; border-radius: 999px;
-      font: inherit; font-size: 17px; font-weight: 700; color: var(--main); background: none; letter-spacing: normal;
-      transition: background .2s ease;
-    }
-    .login-lock button:hover { background: rgba(255, 255, 255, 0.7); }
-    .login-lock button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
-    .login-lock[hidden] { display: none; }
-
     /* 카드 1: 위아래 반반 (위 공지사항 · 아래 오늘의 공지) */
     .notice-card {
       /* 열 폭을 카드 폭에 고정 (안 그러면 긴 공지 제목만큼 열이 넓어져 날짜가 잘림) */
@@ -548,15 +526,7 @@
             <div class="card-head"><h2 class="card-title" id="todayTitle">오늘의 공지</h2></div>
           </section>
         </article>
-        <article class="card member-card" id="card2">
-          <!-- 로그인한 학생에게만 보일 내용 자리 (지금은 흐림 뒤에 비칠 임시 모양) -->
-          <div class="member-body" aria-hidden="true">
-            <span class="sk w60"></span><span class="sk w90"></span><span class="sk w75"></span>
-            <span class="sk box"></span>
-            <span class="sk w80"></span><span class="sk w50"></span>
-          </div>
-          <div class="login-lock"><button type="button" data-auth="login">로그인을 해주세요</button></div>
-        </article>
+        <article class="card" id="card2">카드 2</article>
         <article class="card">카드 3</article>
       </div>
     </section>
@@ -1069,11 +1039,6 @@
         ? '강사 가입 정보 확인 완료! 서버 연결 후 관리자 승인을 거쳐 사용할 수 있어요.'
         : '가입 정보 확인 완료! 서버 연결 후 실제 가입이 가능해요.', true);
     });
-
-    // 카드 2: 로그인 안 했으면 흐림 + "로그인을 해주세요"
-    // ponytail: 로그인 기능이 아직 없어서 항상 로그아웃 상태. 로그인을 만들면 이 값만 실제 상태로 바꾸면 됨
-    const isLoggedIn = false;
-    document.querySelector('#card2 .login-lock').hidden = isLoggedIn;
 
     // 최초 접속·새로고침 모두 매번 재생. 배경 이미지가 준비된 뒤 시작
     const ready = new Promise(res => {
