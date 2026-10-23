@@ -145,16 +145,17 @@
     /* 제목 줄: 왼쪽 제목, 오른쪽 끝 화살표 버튼(더 볼 공지가 있을 때만) */
     .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 10px; }
     .card-title { display: flex; align-items: flex-end; gap: 5px; margin: 0; font-size: 18px; font-weight: 700; color: var(--main); }
+    /* 화살표만 크고 굵게 (동그란 배경 없음). 누르기 쉽게 버튼 영역은 32px 유지 */
     .more-btn {
       flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 0;
-      appearance: none; border: 0; border-radius: 50%; cursor: pointer;
-      color: var(--main); background: var(--main-light);
-      transition: background .2s ease, color .2s ease, transform .2s ease;
+      appearance: none; border: 0; border-radius: 8px; cursor: pointer;
+      color: var(--main); background: none;
+      transition: transform .2s ease;
     }
     .more-btn[hidden] { display: none; }
-    .more-btn:hover { background: var(--main); color: var(--white); transform: translateX(2px); }
+    .more-btn:hover { transform: translateX(3px); }
     .more-btn:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
-    .more-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .more-btn svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     /* 제목 오른쪽 아래 장식 빗금(//): 선 모양은 마스크로, 색은 제목 글씨와 같게 */
     .card-title::after {
       content: ""; flex: none; width: 16px; height: 12px; margin-bottom: 3px; background: currentColor;
