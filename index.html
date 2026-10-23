@@ -143,9 +143,9 @@
     .card-half { display: flex; flex-direction: column; min-height: 0; padding: 24px 24px 16px; }
     .card-half + .card-half { border-top: 1px solid rgba(0, 70, 81, 0.1); }
     .card-title { display: flex; align-items: flex-end; gap: 5px; margin: 0 0 12px; font-size: 18px; font-weight: 700; color: var(--main); }
-    /* 제목 오른쪽 아래 장식 빗금(//): 선 모양은 마스크로, 색은 연두 포인트 */
+    /* 제목 오른쪽 아래 장식 빗금(//): 선 모양은 마스크로, 색은 제목 글씨와 같게 */
     .card-title::after {
-      content: ""; flex: none; width: 16px; height: 12px; margin-bottom: 3px; background: var(--accent);
+      content: ""; flex: none; width: 16px; height: 12px; margin-bottom: 3px; background: currentColor;
       -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath d='M2 11L9 4M7 11L14 4' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
               mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath d='M2 11L9 4M7 11L14 4' stroke='%23000' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
     }
