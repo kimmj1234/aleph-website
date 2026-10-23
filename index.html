@@ -305,27 +305,105 @@
     .switch button { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--main); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
     .steps[hidden] { display: none; }   /* 강사 회원가입은 1단계뿐이라 단계 표시를 숨김 */
 
-    /* 강사 고유 코드 관리 창 (관리자 전용) */
-    .admin-dialog {
-      width: min(680px, calc(100vw - 32px)); max-height: min(720px, calc(100dvh - 48px));
-      padding: 0; border: 0; border-radius: 28px; box-sizing: border-box;
-      background: var(--white); color: var(--black);
-      box-shadow: 0 32px 80px -24px rgba(0, 30, 35, 0.5);
+    /* ── 관리자 대시보드: 화면 전체를 덮는 관리 화면. 왼쪽 딥 틸 메뉴 · 오른쪽 내용 ── */
+    .dash {
+      position: fixed; inset: 0; z-index: 30; display: grid; grid-template-columns: 240px 1fr;
+      background: #f3f7f7; color: var(--black); font-size: 15px;
     }
-    .admin-dialog[open] { display: flex; flex-direction: column; animation: dialogIn .3s cubic-bezier(.16, 1, .3, 1); }
-    .admin-dialog::backdrop { background: rgba(0, 30, 35, 0.35); backdrop-filter: blur(4px); }
-    .admin-head { position: relative; padding: 28px 32px 18px; border-bottom: 1px solid rgba(0, 70, 81, 0.1); }
-    .admin-head .card-title { font-size: 22px; }
-    .admin-head p { margin: 8px 0 16px; font-size: 14px; color: var(--muted); }
-    .admin-head .dialog-close { top: 18px; right: 18px; }
+    .dash[hidden] { display: none; }
+    .dash-side { display: flex; flex-direction: column; gap: 6px; padding: 28px 16px; background: var(--main); color: var(--white); }
+    .dash-brand { padding: 0 12px 24px; font-size: 20px; font-weight: 700; letter-spacing: 0.2em; }
+    .dash-brand span { display: block; margin-top: 4px; font-size: 13px; font-weight: 500; letter-spacing: normal; opacity: .75; }
+    .dash-nav { display: flex; flex-direction: column; gap: 4px; }
+    .dash-nav button, .dash-back {
+      appearance: none; border: 0; cursor: pointer; text-align: left; font: inherit; font-size: 15px; font-weight: 600;
+      padding: 12px 14px; border-radius: 12px; color: rgba(255, 255, 255, 0.85); background: none;
+    }
+    .dash-nav button:hover, .dash-back:hover { background: rgba(255, 255, 255, 0.1); color: var(--white); }
+    /* 지금 보는 메뉴: 밝은 면 + 왼쪽 연두 막대 */
+    .dash-nav button[aria-current="page"] { color: var(--white); background: rgba(255, 255, 255, 0.16); box-shadow: inset 4px 0 0 var(--accent); }
+    .dash-back { margin-top: auto; }
+    .dash-nav button:focus-visible, .dash-back:focus-visible { outline: 2px solid var(--white); outline-offset: 2px; }
+    .dash-main { overflow-y: auto; padding: 36px clamp(20px, 4vw, 48px) 60px; }
+    .dash-main h1 { display: flex; align-items: flex-end; gap: 6px; margin: 0 0 6px; font-size: 26px; color: var(--main); }
+    .dash-main .lead { margin: 0 0 24px; color: var(--muted); }
+    .dash-main h2 { margin: 32px 0 12px; font-size: 18px; color: var(--main); }
+    .dash-panel[hidden] { display: none; }
+    .dash-box { padding: 20px 24px; border-radius: 20px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.08); box-shadow: 0 10px 30px -24px rgba(0, 70, 81, 0.5); }
+    /* 개요: 숫자 카드 */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+    .stat { padding: 22px 24px; }
+    .stat span { font-size: 14px; color: var(--muted); }
+    .stat strong { display: block; margin-top: 6px; font-size: 34px; color: var(--main); }
+    .dash-list { margin: 0; padding: 4px 24px; list-style: none; }
+    .dash-list li { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid rgba(0, 70, 81, 0.08); }
+    .dash-list li:last-child { border-bottom: 0; }
+    .dash-list .muted, .dash-table .muted { color: var(--muted); font-size: 13px; }
+    .dash-list .grow { flex: 1; min-width: 0; }
+    .role-tag { padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--main); background: var(--main-light); white-space: nowrap; }
+    .role-tag.teacher { color: var(--white); background: var(--main); }
+    .role-tag.admin { color: var(--main); background: var(--accent); }
+    /* 회원 관리: 거르기·찾기 + 표 */
+    .dash-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .chip-group { display: flex; gap: 6px; }
+    .chip-group button {
+      appearance: none; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600;
+      padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--black); background: var(--white);
+    }
+    .chip-group button[aria-pressed="true"] { border-color: var(--main); color: var(--white); background: var(--main); }
+    .dash-input {
+      box-sizing: border-box; height: 42px; padding: 0 14px; border-radius: 12px; border: 1.5px solid var(--line);
+      font: inherit; font-size: 15px; color: var(--black); background: var(--white);
+    }
+    .dash-input:focus { outline: none; border-color: var(--main); box-shadow: 0 0 0 4px rgba(0, 70, 81, 0.14); }
+    .dash-tools .dash-input { flex: 1; min-width: 180px; max-width: 320px; margin-left: auto; }
+    .table-wrap { overflow-x: auto; padding: 0; }
+    .dash-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+    .dash-table th { padding: 14px 16px; font-size: 13px; font-weight: 600; text-align: left; color: var(--muted); border-bottom: 1px solid rgba(0, 70, 81, 0.12); }
+    .dash-table td { padding: 12px 16px; border-bottom: 1px solid rgba(0, 70, 81, 0.08); vertical-align: middle; }
+    .dash-table tr:last-child td { border-bottom: 0; }
+    .dash-table .detail td { background: #f7fafa; font-size: 14px; }
+    .detail dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 4px 0; }
+    .detail dt { color: var(--muted); }
+    .detail dd { margin: 0; }
+    .row-btns { display: flex; gap: 6px; justify-content: flex-end; white-space: nowrap; }
+    .mini-btn {
+      appearance: none; border: 0; cursor: pointer; padding: 7px 12px; border-radius: 9px;
+      font: inherit; font-size: 13px; font-weight: 600; color: var(--main); background: var(--main-light);
+    }
+    .mini-btn:hover { background: #d3e1e3; }
+    .mini-btn.solid { color: var(--white); background: var(--main); }
+    .mini-btn.solid:hover { background: var(--main-dark); }
+    .mini-btn.danger { color: #b3261e; background: #fbeceb; }
+    .mini-btn.danger:hover { background: #f6d8d6; }
+    .mini-btn:focus-visible, .chip-group button:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+    .dash-table .dash-input { height: 36px; width: 100%; max-width: 220px; }
+    /* 공지 관리: 추가 줄 */
+    .notice-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+    .notice-form .dash-input { flex: 1; min-width: 220px; }
+    .notice-form label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+    .notice-form input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--main); }
+    .dash-list .pin { flex: none; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; color: var(--main); background: var(--accent); }
+    .dash-msg { min-height: 20px; margin: 0 0 10px; font-size: 14px; color: var(--main); }
+    .dash-msg.err { color: #b3261e; }
+    @media (max-width: 760px) {
+      .dash { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+      .dash-side { flex-direction: row; align-items: center; gap: 8px; padding: 12px; overflow-x: auto; }
+      .dash-brand { padding: 0 8px; font-size: 16px; white-space: nowrap; }
+      .dash-brand span { display: none; }
+      .dash-nav { flex-direction: row; }
+      .dash-nav button, .dash-back { white-space: nowrap; padding: 10px 12px; }
+      .dash-nav button[aria-current="page"] { box-shadow: inset 0 -3px 0 var(--accent); }
+      .dash-back { margin: 0 0 0 auto; }
+    }
+    .code-list { padding-left: 24px; padding-right: 24px; }
     .issue-btn {
       height: 44px; padding: 0 22px; border: 0; border-radius: 999px; cursor: pointer;
       font: inherit; font-size: 15px; font-weight: 700; color: var(--white); background: var(--main);
     }
     .issue-btn:hover { background: var(--main-dark); }
     .issue-btn:disabled { opacity: .6; cursor: default; }
-    .admin-msg { min-height: 20px; margin: 10px 0 0; font-size: 13px; color: var(--main); }
-    .code-list { flex: 1; overflow-y: auto; margin: 0; padding: 8px 24px 24px; list-style: none; }
+    .code-list { margin: 0; padding-top: 4px; padding-bottom: 4px; list-style: none; }
     .code-list li {
       display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px;
       padding: 14px 8px; border-bottom: 1px solid rgba(0, 70, 81, 0.08); font-size: 14px;
@@ -385,6 +463,7 @@
     .notice-list time { flex: none; font-size: 12px; color: rgba(0, 70, 81, 0.55); }
     /* 상단 고정 공지: 연두 '고정' 배지(연두 면 위 딥 틸 글씨 4.59:1) + 옅은 바탕 */
     .notice-list .pinned { background: var(--main-light); font-weight: 600; }
+    .notice-list .empty-row { color: var(--muted); }
     .notice-list .pin {
       flex: none; padding: 2px 8px; border-radius: 999px;
       font-size: 11px; font-weight: 700; color: var(--main); background: var(--accent);
@@ -482,18 +561,39 @@
     }
     .login-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .login-btn:hover { background: var(--main-dark); transform: translateY(-1px); }
+    .login-btn[hidden] { display: none; }
 
-    /* 관리자 버튼: 딥 틸 테두리만 (로그아웃 버튼보다 한 단계 약하게) */
-    .admin-btn {
-      height: 44px; padding: 0 18px; border-radius: 999px; cursor: pointer; appearance: none;
-      font: inherit; font-size: 15px; font-weight: 700; color: var(--main);
-      background: var(--white); border: 1.5px solid var(--main);
-      transition: background .2s ease;
+    /* 계정 버튼 (관리자): 이니셜 동그라미 + 이름. 누르면 계정 정보·대시보드·로그아웃 메뉴 */
+    .account-btn {
+      display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px 0 6px;
+      appearance: none; cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; color: var(--main);
+      background: var(--white); border: 1.5px solid rgba(0, 70, 81, 0.25); border-radius: 999px;
+      transition: border-color .2s ease, background .2s ease;
     }
-    .admin-btn:hover { background: var(--main-light); }
-    .admin-btn[hidden] { display: none; }
-    .topbar-inner > .admin-btn + .login-btn { margin-left: -12px; }
-    .nav a:focus-visible, .brand:focus-visible, .login-btn:focus-visible, .menu-btn:focus-visible, .admin-btn:focus-visible {
+    .account-btn:hover { border-color: var(--main); background: var(--main-light); }
+    .account-btn[hidden] { display: none; }
+    .account-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .avatar {
+      display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; flex: none;
+      font-size: 14px; font-weight: 700; color: var(--main); background: var(--accent);
+    }
+    .avatar.big { width: 44px; height: 44px; font-size: 18px; }
+    .account-pop {
+      position: fixed; inset: 80px 24px auto auto; margin: 0; width: 260px; padding: 8px;
+      box-sizing: border-box; border: 1px solid rgba(0, 70, 81, 0.1); border-radius: 18px;
+      background: var(--white); color: var(--black); box-shadow: 0 20px 44px -18px rgba(0, 70, 81, 0.45);
+    }
+    .account-info { display: flex; align-items: center; gap: 12px; padding: 12px 10px 14px; border-bottom: 1px solid rgba(0, 70, 81, 0.1); margin-bottom: 6px; }
+    .account-info strong { display: block; font-size: 16px; }
+    .account-info small { display: block; font-size: 13px; color: var(--muted); }
+    .role-badge { margin-left: auto; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--white); background: var(--main); }
+    .pop-item {
+      display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 10px; border: 0; border-radius: 10px;
+      appearance: none; cursor: pointer; font: inherit; font-size: 15px; font-weight: 600; color: var(--main); background: none; text-align: left;
+    }
+    .pop-item:hover { background: var(--main-light); }
+    .pop-item svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .nav a:focus-visible, .brand:focus-visible, .login-btn:focus-visible, .menu-btn:focus-visible, .account-btn:focus-visible {
       outline: 2px solid var(--main); outline-offset: 2px;
     }
 
@@ -557,7 +657,7 @@
         <button class="menu-btn" type="button" popovertarget="menuPop" aria-label="메뉴 열기">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
-        <button class="admin-btn" id="adminBtn" type="button" hidden>관리자</button>
+        <button class="account-btn" id="accountBtn" type="button" popovertarget="accountPop" hidden><span class="avatar" id="accountAvatar"></span><span id="accountName"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <button class="login-btn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>로그인</button>
       </div>
     </header>
@@ -589,17 +689,77 @@
     <section class="area" id="area3">영역 3</section>
   </main>
 
-  <!-- 강사 고유 코드 관리 창: 관리자로 로그인했을 때 메뉴바 '관리자' 버튼으로 엶 -->
-  <dialog class="admin-dialog" id="adminDialog" closedby="any" aria-labelledby="adminTitle">
-    <div class="admin-head">
-      <h2 class="card-title" id="adminTitle">강사 고유 코드</h2>
-      <p>새 코드를 발급해 강사에게 전달하세요. 코드 하나는 강사 한 명만 가입에 쓸 수 있고, 강사는 로그인할 때마다 이 코드를 입력해요.</p>
-      <button class="issue-btn" id="issueCode" type="button">새 코드 발급</button>
-      <p class="admin-msg" id="adminMsg" role="status"></p>
-      <button class="dialog-close" type="button" aria-label="닫기">×</button>
+  <!-- 계정 메뉴 (관리자): 계정 정보 · 대시보드 · 로그아웃 -->
+  <div class="account-pop" id="accountPop" popover>
+    <div class="account-info">
+      <span class="avatar big" id="accAvatar"></span>
+      <div><strong id="accName"></strong><small id="accId"></small></div>
+      <span class="role-badge">관리자</span>
     </div>
-    <ul class="code-list" id="codeList"></ul>
-  </dialog>
+    <button type="button" class="pop-item" id="openDash"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>대시보드</button>
+    <button type="button" class="pop-item" id="logoutBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg>로그아웃</button>
+  </div>
+
+  <!-- 관리자 대시보드: 계정 메뉴의 '대시보드'로 엶 -->
+  <section class="dash" id="dashboard" hidden aria-label="관리자 대시보드">
+    <aside class="dash-side">
+      <div class="dash-brand">ALEPH<span>관리자 대시보드</span></div>
+      <nav class="dash-nav" aria-label="대시보드 메뉴">
+        <button type="button" data-tab="overview" aria-current="page">개요</button>
+        <button type="button" data-tab="members">회원 관리</button>
+        <button type="button" data-tab="notices">공지 관리</button>
+        <button type="button" data-tab="codes">강사 고유 코드</button>
+      </nav>
+      <button type="button" class="dash-back" id="closeDash">← 사이트로 돌아가기</button>
+    </aside>
+    <div class="dash-main">
+      <section class="dash-panel" id="tab-overview">
+        <h1 class="card-title">개요</h1>
+        <p class="lead">학원 웹사이트의 회원과 공지 현황이에요.</p>
+        <div class="stat-grid" id="dashStats"></div>
+        <h2>최근 가입한 회원</h2>
+        <ul class="dash-list dash-box" id="recentMembers"></ul>
+      </section>
+      <section class="dash-panel" id="tab-members" hidden>
+        <h1 class="card-title">회원 관리</h1>
+        <p class="lead">학생·강사의 가입 정보를 보고 이름을 고칠 수 있어요. 역할과 아이디는 바꿀 수 없어요.</p>
+        <div class="dash-tools">
+          <div class="chip-group" role="group" aria-label="역할로 거르기">
+            <button type="button" data-role="" aria-pressed="true">전체</button>
+            <button type="button" data-role="student" aria-pressed="false">학생</button>
+            <button type="button" data-role="teacher" aria-pressed="false">강사</button>
+            <button type="button" data-role="admin" aria-pressed="false">관리자</button>
+          </div>
+          <input class="dash-input" id="memberSearch" type="search" placeholder="이름·아이디로 찾기" aria-label="이름·아이디로 찾기">
+        </div>
+        <p class="dash-msg" id="memberMsg" role="status"></p>
+        <div class="table-wrap dash-box">
+          <table class="dash-table">
+            <thead><tr><th>이름</th><th>아이디</th><th>역할</th><th>가입일</th><th></th></tr></thead>
+            <tbody id="memberRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="dash-panel" id="tab-notices" hidden>
+        <h1 class="card-title">공지 관리</h1>
+        <p class="lead">여기서 쓴 공지가 메인 페이지 공지사항 카드에 바로 보여요. 고정한 공지는 맨 위에 와요.</p>
+        <form class="notice-form" id="noticeForm">
+          <input class="dash-input" name="title" maxlength="100" placeholder="새 공지 제목" aria-label="새 공지 제목" autocomplete="off">
+          <label><input type="checkbox" name="pinned"> 상단 고정</label>
+          <button class="mini-btn solid" type="submit">공지 올리기</button>
+        </form>
+        <p class="dash-msg" id="noticeMsg" role="status"></p>
+        <ul class="dash-list dash-box" id="noticeAdminList"></ul>
+      </section>
+      <section class="dash-panel" id="tab-codes" hidden>
+        <h1 class="card-title">강사 고유 코드</h1>
+        <p class="lead">새 코드를 발급해 강사에게 전달하세요. 코드 하나는 강사 한 명만 가입에 쓸 수 있고, 강사는 로그인할 때마다 이 코드를 입력해요.</p>
+        <div class="dash-tools"><button class="issue-btn" id="issueCode" type="button">새 코드 발급</button></div>
+        <p class="dash-msg" id="adminMsg" role="status"></p>
+        <ul class="code-list dash-box" id="codeList"></ul>
+      </section>
+    </div>
+  </section>
 
   <!-- 공지 창: 카드 1의 화살표로 엶. 왼쪽 전체 공지사항 · 오른쪽 오늘의 공지 -->
   <dialog class="notice-dialog" id="noticeDialog" closedby="any" aria-label="공지사항 전체 보기">
@@ -813,12 +973,14 @@
     addEventListener('resize', moveBar);
     // ponytail: popover 미지원(구형) 브라우저는 펼침 메뉴를 단순 표시/숨김으로 대체
     if (!('popover' in HTMLElement.prototype)) {
-      menuPop.hidden = true;
-      document.querySelector('.menu-btn').addEventListener('click', () => { menuPop.hidden = !menuPop.hidden; });
+      [[menuPop, '.menu-btn'], [document.getElementById('accountPop'), '#accountBtn']].forEach(([pop, btn]) => {
+        pop.hidden = true;
+        document.querySelector(btn).addEventListener('click', () => { pop.hidden = !pop.hidden; });
+      });
     }
 
     // 카드 1 공지사항: 상단 고정 공지가 맨 위, 그다음은 최신순
-    // ponytail: 서버 연결 전 임시 공지 목록. 서버가 생기면 이 배열만 받아온 데이터로 바꾸면 됨
+    // 데모 모드(서버 미연결)에서만 쓰는 임시 공지 목록. 서버 연결 시에는 notices 표에서 받아옴
     const NOTICES = [
       { title: '10월 정기 휴원 안내 (10/28 화)', date: '2026-10-20', pinned: true },
       { title: '2026 겨울방학 특강 수강 신청 안내', date: '2026-10-15', pinned: true },
@@ -848,17 +1010,21 @@
       return li;
     }
     // 카드에는 앞의 6개(고정 + 최신)만. 화살표를 누르면 큰 창에서 전체 공지 + 오늘의 공지
+    // list: [{ title, date: 'YYYY-MM-DD', pinned }] — 로그인 후 서버에서 받아 그림 (데모 모드는 위 임시 목록)
     const CARD_NOTICES = 6;
-    const sorted = sortNotices(NOTICES);
-    document.getElementById('noticeList').replaceChildren(...sorted.slice(0, CARD_NOTICES).map(noticeItem));
-    document.getElementById('noticeAllList').replaceChildren(...sorted.map(noticeItem));
-    document.getElementById('dlgNoticeCount').textContent = `${sorted.length}개`;
-    // 오늘 날짜(이 컴퓨터 기준, YYYY-MM-DD)에 올라온 공지
-    const todayStr = new Date().toLocaleDateString('sv-SE');
-    const todays = sorted.filter(n => n.date === todayStr);
-    document.getElementById('todayList').replaceChildren(...todays.map(noticeItem));
-    document.getElementById('dlgTodayCount').textContent = `${todays.length}개`;
-    document.getElementById('todayEmpty').hidden = todays.length > 0;
+    function renderNotices(list) {
+      const sorted = sortNotices(list);
+      const empty = text => [Object.assign(document.createElement('li'), { className: 'empty-row', textContent: text })];
+      document.getElementById('noticeList').replaceChildren(...(sorted.length ? sorted.slice(0, CARD_NOTICES).map(noticeItem) : empty('아직 공지가 없어요.')));
+      document.getElementById('noticeAllList').replaceChildren(...sorted.map(noticeItem));
+      document.getElementById('dlgNoticeCount').textContent = `${sorted.length}개`;
+      // 오늘 날짜(이 컴퓨터 기준, YYYY-MM-DD)에 올라온 공지
+      const todayStr = new Date().toLocaleDateString('sv-SE');
+      const todays = sorted.filter(n => n.date === todayStr);
+      document.getElementById('todayList').replaceChildren(...todays.map(noticeItem));
+      document.getElementById('dlgTodayCount').textContent = `${todays.length}개`;
+      document.getElementById('todayEmpty').hidden = todays.length > 0;
+    }
     const noticeDialog = document.getElementById('noticeDialog');
     const noticeMore = document.getElementById('noticeMore');
     noticeMore.addEventListener('click', () => noticeDialog.showModal());
@@ -1084,24 +1250,41 @@
     const authReady = loadMe();
 
     const loginBtn = document.querySelector('.topbar .login-btn');
-    const adminBtn = document.getElementById('adminBtn');
+    const accountBtn = document.getElementById('accountBtn');
+    const accountPop = document.getElementById('accountPop');
+    // 관리자: 로그아웃 버튼 대신 계정 버튼(계정 정보·대시보드·로그아웃 메뉴) / 그 외: 로그아웃 버튼
     function updateTopbar() {
+      const admin = me?.role === 'admin';
+      loginBtn.hidden = admin;
       loginBtn.lastChild.textContent = me ? '로그아웃' : '로그인';
-      adminBtn.hidden = me?.role !== 'admin';
+      accountBtn.hidden = !admin;
+      if (admin) {
+        const initial = (me.name || me.userid).trim().charAt(0);
+        document.getElementById('accountAvatar').textContent = document.getElementById('accAvatar').textContent = initial;
+        document.getElementById('accountName').textContent = document.getElementById('accName').textContent = me.name;
+        document.getElementById('accId').textContent = `@${me.userid}`;
+      }
     }
-    authReady.then(updateTopbar);
+    // 공지사항: 서버의 notices 표 (데모 모드는 임시 목록)
+    async function loadNotices() {
+      if (DEMO) return renderNotices(NOTICES);
+      const { data } = await db.from('notices').select('id, title, pinned, created_at');
+      renderNotices((data || []).map(n => ({ ...n, date: new Date(n.created_at).toLocaleDateString('sv-SE') })));
+    }
+    authReady.then(() => { updateTopbar(); if (me) loadNotices(); });
     function logIn() {
       authModal.close();
       updateTopbar();
+      loadNotices();
       enter();   // 인트로가 사라지고 메인으로
     }
-    // 메뉴바 버튼: 로그인한 상태면 '로그아웃' → 누르면 처음(인트로)부터 다시
-    loginBtn.addEventListener('click', async () => {
-      if (!me) return showAuth('login');
+    async function logOut() {
       if (db) await db.auth.signOut();
       try { sessionStorage.removeItem('aleph-demo'); } catch {}
-      location.reload();
-    });
+      location.reload();   // 처음(인트로)부터 다시
+    }
+    loginBtn.addEventListener('click', () => me ? logOut() : showAuth('login'));
+    document.getElementById('logoutBtn').addEventListener('click', logOut);
     const setBusy = (f, on) => f.querySelectorAll('button[type="submit"]').forEach(b => { b.disabled = on; });
 
     document.getElementById('f-login').addEventListener('submit', async e => {
@@ -1219,12 +1402,195 @@
       signUp(f, extra);
     });
 
-    // ── 관리자: 강사 고유 코드 발급·관리 ──
-    const adminDialog = document.getElementById('adminDialog');
+    // ── 관리자 대시보드 ──
+    // 화면은 관리자에게만 열리지만, 실제로 무엇을 읽고 고칠 수 있는지는 서버 규칙(RLS)이 정함
+    const el = (tag, props) => Object.assign(document.createElement(tag), props);
+    const fmtDate = iso => new Date(iso).toLocaleDateString('sv-SE').replaceAll('-', '.');
+    const ROLE_LABEL = { student: '학생', teacher: '강사', admin: '관리자' };
+    const roleTag = r => el('span', { className: `role-tag ${r}`, textContent: ROLE_LABEL[r] || r });
+    const say = (node, text, err) => { node.textContent = text; node.classList.toggle('err', !!err); };
+    const dash = document.getElementById('dashboard');
+    const dashTabs = [...dash.querySelectorAll('.dash-nav [data-tab]')];
+    const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes };
+    function showTab(name) {
+      dashTabs.forEach(b => b.dataset.tab === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+      dash.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
+      LOADERS[name]();
+    }
+    dashTabs.forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+    document.getElementById('openDash').addEventListener('click', () => {
+      accountPop.hidePopover?.();
+      dash.hidden = false;
+      showTab('overview');
+    });
+    document.getElementById('closeDash').addEventListener('click', () => { dash.hidden = true; loadNotices(); });
+
+    // 개요: 회원·공지·코드 숫자 + 최근 가입
+    async function loadOverview() {
+      const [{ data: members }, { count: noticeCount }, { data: codes }] = await Promise.all([
+        db.from('profiles').select('userid, name, role, created_at').order('created_at', { ascending: false }),
+        db.from('notices').select('id', { count: 'exact', head: true }),
+        db.from('teacher_codes').select('used_at'),
+      ]);
+      const list = members || [];
+      const count = r => list.filter(m => m.role === r).length;
+      const stats = [['학생', count('student')], ['강사', count('teacher')], ['공지', noticeCount ?? 0],
+                     ['사용 전 강사 코드', (codes || []).filter(c => !c.used_at).length]];
+      document.getElementById('dashStats').replaceChildren(...stats.map(([label, n]) => {
+        const box = el('div', { className: 'stat dash-box' });
+        box.append(el('span', { textContent: label }), el('strong', { textContent: n }));
+        return box;
+      }));
+      document.getElementById('recentMembers').replaceChildren(...(list.length ? list.slice(0, 5).map(m => {
+        const li = el('li');
+        li.append(roleTag(m.role), el('span', { className: 'grow', textContent: `${m.name} (${m.userid})` }),
+                  el('span', { className: 'muted', textContent: fmtDate(m.created_at) }));
+        return li;
+      }) : [el('li', { className: 'muted', textContent: '아직 가입한 회원이 없어요.' })]));
+    }
+
+    // 회원 관리: 역할로 거르기 · 이름/아이디 찾기 · 가입 정보 보기 · 이름 고치기
+    let members = [];
+    let memberRole = '';
+    const memberRows = document.getElementById('memberRows');
+    const memberMsg = document.getElementById('memberMsg');
+    const memberSearch = document.getElementById('memberSearch');
+    async function loadMembers() {
+      const { data, error } = await db.from('profiles').select('id, userid, name, role, extra, created_at').order('created_at', { ascending: false });
+      if (error) return say(memberMsg, '회원 목록을 불러오지 못했어요.', true);
+      members = data;
+      renderMembers();
+    }
+    // 가입 2단계 답변을 화면 글자로 (회원가입 창의 선택지 글자를 그대로 사용)
+    function extraText(key, value) {
+      const label = v => document.querySelector(`#f-extra input[name="${key}"][value="${v}"]`)?.nextElementSibling?.textContent || v;
+      return Array.isArray(value) ? value.map(label).join(', ') : key === 'birth' ? value.replaceAll('-', '.') : label(value);
+    }
+    function extraTitle(key) {
+      const legend = document.querySelector(`#f-extra input[name="${key}"]`)?.closest('fieldset')?.querySelector('legend');
+      return legend ? legend.firstChild.textContent.trim() : key;
+    }
+    function renderMembers() {
+      const q = memberSearch.value.trim().toLowerCase();
+      const list = members.filter(m => (!memberRole || m.role === memberRole)
+        && (!q || m.name.toLowerCase().includes(q) || m.userid.toLowerCase().includes(q)));
+      if (!list.length) {
+        const td = el('td', { className: 'muted', colSpan: 5, textContent: '해당하는 회원이 없어요.' });
+        return memberRows.replaceChildren(el('tr').appendChild(td).parentNode);
+      }
+      memberRows.replaceChildren(...list.flatMap(m => {
+        const tr = el('tr');
+        const nameTd = el('td', { textContent: m.name });
+        const btns = el('div', { className: 'row-btns' });
+        const more = el('button', { type: 'button', className: 'mini-btn', textContent: '가입 정보' });
+        const edit = el('button', { type: 'button', className: 'mini-btn', textContent: '이름 수정' });
+        btns.append(more, edit);
+        tr.append(nameTd, el('td', { textContent: m.userid }), el('td'), el('td', { className: 'muted', textContent: fmtDate(m.created_at) }), el('td'));
+        tr.children[2].append(roleTag(m.role));
+        tr.children[4].append(btns);
+        // 가입 정보: 학생의 2단계 답변 (강사·관리자는 기본 정보만)
+        const detail = el('tr', { className: 'detail', hidden: true });
+        const dl = el('dl');
+        const entries = Object.entries(m.extra || {}).filter(([, v]) => v && v.length !== 0);
+        if (entries.length) entries.forEach(([k, v]) => dl.append(el('dt', { textContent: extraTitle(k) }), el('dd', { textContent: extraText(k, v) })));
+        else dl.append(el('dt', { textContent: '추가 정보' }), el('dd', { textContent: '없음' }));
+        const dtd = el('td', { colSpan: 5 });
+        dtd.append(dl);
+        detail.append(dtd);
+        more.addEventListener('click', () => { detail.hidden = !detail.hidden; });
+        // 이름 수정: 그 자리에서 입력 → 저장
+        edit.addEventListener('click', async () => {
+          if (edit.textContent === '이름 수정') {
+            const input = el('input', { className: 'dash-input', value: m.name, maxLength: 30, ariaLabel: '새 이름' });
+            nameTd.replaceChildren(input);
+            input.focus();
+            edit.textContent = '저장';
+            edit.classList.add('solid');
+            return;
+          }
+          const name = nameTd.querySelector('input').value.trim();
+          if (!name) return say(memberMsg, '이름을 입력해 주세요.', true);
+          const { error } = await db.from('profiles').update({ name }).eq('id', m.id);
+          if (error) return say(memberMsg, '이름을 바꾸지 못했어요.', true);
+          m.name = name;
+          say(memberMsg, `${m.userid}의 이름을 '${name}'(으)로 바꿨어요.`);
+          if (m.userid === me.userid) { me.name = name; updateTopbar(); }
+          renderMembers();
+        });
+        return [tr, detail];
+      }));
+    }
+    document.querySelectorAll('#tab-members .chip-group button').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('#tab-members .chip-group button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      memberRole = b.dataset.role;
+      renderMembers();
+    }));
+    memberSearch.addEventListener('input', renderMembers);
+
+    // 공지 관리: 올리기 · 고정/해제 · 제목 수정 · 삭제 (메인 카드에도 바로 반영)
+    const noticeMsg = document.getElementById('noticeMsg');
+    const noticeAdminList = document.getElementById('noticeAdminList');
+    async function loadAdminNotices() {
+      const { data, error } = await db.from('notices').select('id, title, pinned, created_at')
+        .order('pinned', { ascending: false }).order('created_at', { ascending: false });
+      if (error) return say(noticeMsg, '공지를 불러오지 못했어요.', true);
+      noticeAdminList.replaceChildren(...(data.length ? data.map(noticeAdminRow)
+        : [el('li', { className: 'muted', textContent: '아직 공지가 없어요. 위에서 첫 공지를 올려 보세요.' })]));
+      loadNotices();
+    }
+    function noticeAdminRow(n) {
+      const li = el('li');
+      const title = el('span', { className: 'grow', textContent: n.title });
+      const pin = el('button', { type: 'button', className: 'mini-btn', textContent: n.pinned ? '고정 해제' : '고정' });
+      const edit = el('button', { type: 'button', className: 'mini-btn', textContent: '수정' });
+      const del = el('button', { type: 'button', className: 'mini-btn danger', textContent: '삭제' });
+      const btns = el('div', { className: 'row-btns' });
+      btns.append(pin, edit, del);
+      if (n.pinned) li.append(el('span', { className: 'pin', textContent: '고정' }));
+      li.append(title, el('span', { className: 'muted', textContent: fmtDate(n.created_at) }), btns);
+      const update = async (patch, done) => {
+        const { error } = await db.from('notices').update(patch).eq('id', n.id);
+        say(noticeMsg, error ? '바꾸지 못했어요.' : done, !!error);
+        loadAdminNotices();
+      };
+      pin.addEventListener('click', () => update({ pinned: !n.pinned }, n.pinned ? '고정을 해제했어요.' : '상단에 고정했어요.'));
+      edit.addEventListener('click', () => {
+        if (edit.textContent === '수정') {
+          const input = el('input', { className: 'dash-input', value: n.title, maxLength: 100, ariaLabel: '공지 제목' });
+          title.replaceChildren(input);
+          input.focus();
+          edit.textContent = '저장';
+          edit.classList.add('solid');
+          return;
+        }
+        const t = title.querySelector('input').value.trim();
+        if (!t) return say(noticeMsg, '제목을 입력해 주세요.', true);
+        update({ title: t }, '공지 제목을 고쳤어요.');
+      });
+      del.addEventListener('click', async () => {
+        if (!confirm(`'${n.title}' 공지를 삭제할까요? 되돌릴 수 없어요.`)) return;
+        const { error } = await db.from('notices').delete().eq('id', n.id);
+        say(noticeMsg, error ? '삭제하지 못했어요.' : '공지를 삭제했어요.', !!error);
+        loadAdminNotices();
+      });
+      return li;
+    }
+    document.getElementById('noticeForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const f = e.target;
+      const title = f.title.value.trim();
+      if (!title) return say(noticeMsg, '공지 제목을 입력해 주세요.', true);
+      const { error } = await db.from('notices').insert({ title, pinned: f.pinned.checked });
+      if (error) return say(noticeMsg, '공지를 올리지 못했어요.', true);
+      f.reset();
+      say(noticeMsg, '공지를 올렸어요. 메인 페이지 공지사항에 바로 보여요.');
+      loadAdminNotices();
+    });
+
+    // 강사 고유 코드: 발급 · 보기/복사 · 사용 전 코드 삭제
     const codeList = document.getElementById('codeList');
     const adminMsg = document.getElementById('adminMsg');
     const MASK = '••••••••••••';
-    const el = (tag, props) => Object.assign(document.createElement(tag), props);
     function codeRow(c) {
       const code = el('code', { textContent: MASK });
       const eye = el('button', { type: 'button', textContent: '보기' });
@@ -1235,15 +1601,15 @@
       });
       const copy = el('button', { type: 'button', textContent: '복사' });
       copy.addEventListener('click', async () => {
-        try { await navigator.clipboard.writeText(c.code); adminMsg.textContent = '코드를 복사했어요. 강사에게 전달하세요.'; }
-        catch { adminMsg.textContent = '복사하지 못했어요. 보기를 눌러 직접 옮겨 적어 주세요.'; }
+        try { await navigator.clipboard.writeText(c.code); say(adminMsg, '코드를 복사했어요. 강사에게 전달하세요.'); }
+        catch { say(adminMsg, '복사하지 못했어요. 보기를 눌러 직접 옮겨 적어 주세요.', true); }
       });
       const used = !!c.used_at;
       const meta = el('span', { className: 'code-meta' });
       meta.append(
         el('span', { className: 'code-state' + (used ? ' used' : ''),
           textContent: used ? `사용됨 · ${c.teacher ? `${c.teacher.name}(${c.teacher.userid})` : '탈퇴한 강사'}` : '사용 전' }),
-        el('div', { textContent: `발급 ${c.created_at.slice(0, 10).replaceAll('-', '.')}` }));
+        el('div', { textContent: `발급 ${fmtDate(c.created_at)}` }));
       const li = el('li');
       const box = el('span', { className: 'code-box' });
       box.append(code, eye, copy);
@@ -1253,7 +1619,7 @@
         del.addEventListener('click', async () => {
           if (!confirm('이 코드를 삭제할까요? 삭제하면 이 코드로는 가입할 수 없어요.')) return;
           const { error } = await db.from('teacher_codes').delete().eq('code', c.code);
-          adminMsg.textContent = error ? '삭제하지 못했어요.' : '코드를 삭제했어요.';
+          say(adminMsg, error ? '삭제하지 못했어요.' : '코드를 삭제했어요.', !!error);
           loadCodes();
         });
         li.append(del);
@@ -1267,23 +1633,13 @@
       codeList.replaceChildren(...(error ? [el('li', { className: 'empty', textContent: '코드 목록을 불러오지 못했어요.' })]
         : data.length ? data.map(codeRow) : [el('li', { className: 'empty', textContent: '아직 발급한 코드가 없어요.' })]));
     }
-    adminBtn.addEventListener('click', () => { adminMsg.textContent = ''; adminDialog.showModal(); loadCodes(); });
-    adminDialog.querySelector('.dialog-close').addEventListener('click', () => adminDialog.close());
     document.getElementById('issueCode').addEventListener('click', async e => {
       e.target.disabled = true;
       const { error } = await db.from('teacher_codes').insert({}).select('code').single();   // 코드는 서버가 무작위로 만듦
       e.target.disabled = false;
-      adminMsg.textContent = error ? '발급하지 못했어요. 관리자 계정인지 확인해 주세요.' : '새 코드를 발급했어요. 맨 위 코드를 복사해 강사에게 전달하세요.';
+      say(adminMsg, error ? '발급하지 못했어요. 관리자 계정인지 확인해 주세요.' : '새 코드를 발급했어요. 맨 위 코드를 복사해 강사에게 전달하세요.', !!error);
       loadCodes();
     });
-    // closedby="any" 미지원 브라우저(Safari): 창 바깥을 누르면 닫히게
-    if (!('closedBy' in HTMLDialogElement.prototype)) {
-      adminDialog.addEventListener('click', e => {
-        if (e.target !== adminDialog) return;
-        const r = adminDialog.getBoundingClientRect();
-        if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) adminDialog.close();
-      });
-    }
 
     // 최초 접속·새로고침 모두 매번 재생. 배경 이미지가 준비된 뒤 시작
     const ready = new Promise(res => {
