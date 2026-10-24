@@ -1794,6 +1794,7 @@
     // Supabase 로그인은 이메일 형식이라, 아이디를 '아이디@aleph.local' 로 바꿔 저장 (메일은 보내지 않음)
     const toEmail = id => `${id.trim().toLowerCase()}@aleph.local`;
 
+    const RITUAL_HASH = '#ritual';   // 리추얼 페이지 주소
     let me = null;   // 로그인한 사람 { id, userid, name, role, bio, subjects, created_at }
     const loggedIn = () => !!me;
     async function loadMe() {
@@ -1838,13 +1839,20 @@
       const { data } = await db.from('notices').select('id, title, pinned, created_at');
       renderNotices((data || []).map(n => ({ ...n, date: new Date(n.created_at).toLocaleDateString('sv-SE') })));
     }
-    authReady.then(() => { updateTopbar(); if (me) { loadNotices(); loadLearn(); } });
+    authReady.then(() => {
+      updateTopbar();
+      if (!me) return;
+      loadNotices(); loadLearn();
+      // 주소가 #ritual 이면(리추얼 페이지에서 새로고침) 인트로 없이 리추얼 페이지로
+      if (location.hash === RITUAL_HASH) { intro.classList.add('leaving'); openRitualPage(); }
+    });
     function logIn() {
       authModal.close();
       updateTopbar();
       loadNotices();
       loadLearn();
       enter();   // 인트로가 사라지고 메인으로
+      if (location.hash === RITUAL_HASH) openRitualPage();   // 리추얼 페이지 주소로 들어왔으면 로그인 뒤 바로 그 페이지
     }
     async function logOut() {
       if (db) await db.auth.signOut();
@@ -2667,8 +2675,22 @@
       document.querySelector(`.rp-card[data-kind="${t.dataset.kind}"] textarea`).focus({ preventScroll: true });
     }));
     document.querySelectorAll('.rp-to-choose').forEach(b => b.addEventListener('click', showRitualChoice));
-    document.getElementById('ritualGo').addEventListener('click', () => me ? openRitualPage() : showAuth('login'));
-    document.getElementById('closeRitualPage').addEventListener('click', () => { ritualPage.hidden = true; });
+    // 리추얼 페이지는 주소 #ritual 을 따로 가짐: 새로고침해도 그대로, 브라우저 뒤로가기로 메인
+    function goRitual() {
+      if (location.hash !== RITUAL_HASH) history.pushState({ ritual: true }, '', RITUAL_HASH);
+      openRitualPage();
+    }
+    function leaveRitual() {
+      if (history.state?.ritual) return history.back();   // 메인에서 들어왔으면 한 칸 뒤로 (popstate 가 페이지를 닫음)
+      history.replaceState(null, '', location.pathname);  // 주소로 바로 들어왔으면 주소만 메인으로
+      ritualPage.hidden = true;
+    }
+    addEventListener('popstate', () => {
+      if (location.hash === RITUAL_HASH && me) openRitualPage();
+      else ritualPage.hidden = true;
+    });
+    document.getElementById('ritualGo').addEventListener('click', () => me ? goRitual() : showAuth('login'));
+    document.getElementById('closeRitualPage').addEventListener('click', leaveRitual);
     let assignments = [], subs = [], allRituals = [], helpReqs = [], currentTask = null, myClass = null;
     const classLabel = c => `${c.name} · ${dayLabel(c.starts_on)} 개강`;
     // 개강 전 안내 (문구는 임시)
