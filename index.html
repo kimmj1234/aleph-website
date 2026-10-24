@@ -176,6 +176,9 @@
     .rp-back:hover { text-decoration: underline; }
     .rp-back:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
     .ritual-page h1 { margin: 0 0 14px; font-size: clamp(32px, 4vw, 46px); }
+    /* 위쪽 돌아가기·날짜·제목도 기록 칸처럼 가운데 */
+    .ritual-page > .wrap > .rp-back { display: block; margin-left: auto; margin-right: auto; }
+    .ritual-page > .wrap > .eyebrow, .ritual-page h1 { text-align: center; }
     .ritual-page .eyebrow { letter-spacing: 0.06em; text-transform: none; }
     .rp-grid { max-width: 720px; margin: 24px auto 0; }   /* 기록 칸은 화면 가운데 */
     .rp-card[hidden], .rp-choose[hidden] { display: none; }
