@@ -210,6 +210,44 @@
     .rp-card .card-lead { margin: 12px 0 18px; }
     .rp-card .dash-input { width: 100%; }
     .rp-card textarea.dash-input { height: auto; padding: 10px 14px; resize: vertical; line-height: 1.6; }
+    /* 시작 리추얼 단계 */
+    .rp-progress { display: flex; gap: 6px; margin: 0 0 24px; padding: 0; list-style: none; }
+    .rp-progress li { flex: 1; height: 4px; border-radius: 2px; background: var(--main-light); }
+    .rp-progress li.done { background: var(--accent); }
+    .rp-progress li.current { background: var(--main); }
+    .rp-step[hidden] { display: none; }
+    .rp-step h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 6px; font-family: var(--serif); font-weight: 400; font-size: 22px; color: var(--main); }
+    .rp-step h3 small { font-size: 14px; color: var(--body); }
+    .step-no { font-family: system-ui, sans-serif; font-size: 13px; font-weight: 600; color: var(--body); }
+    .rp-step .card-lead { margin: 4px 0 18px; }
+    .choice { margin: 0 0 18px; padding: 0; border: 0; }
+    .choice legend { margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 600; }
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid rgba(0, 70, 81, 0.15); border-radius: 12px; cursor: pointer; background: var(--white); transition: border-color .2s ease, background .2s ease; }
+    .choice-card:hover { border-color: rgba(0, 70, 81, 0.4); }
+    .choice-card:has(input:checked) { border-color: var(--main); background: #f4f8f8; }
+    .choice-card input { flex: none; appearance: none; width: 20px; height: 20px; margin: 1px 0 0; border: 1.5px solid var(--line); border-radius: 50%; cursor: pointer; transition: border-width .15s ease; }
+    .choice-card input:checked { border: 6px solid var(--main); }
+    .choice-card input:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+    .choice-card b { display: block; font-size: 15px; }
+    .choice-card small { display: block; margin-top: 2px; font-size: 13px; line-height: 1.5; color: var(--body); }
+    /* 호흡하기: 하는 동안 동그라미가 천천히 커졌다 작아짐 (들숨 5초 · 날숨 5초) */
+    .breath { display: flex; align-items: center; gap: 24px; margin-top: 6px; padding: 22px 24px; border-radius: 14px; background: linear-gradient(135deg, #eef4f3, var(--ivory)); }
+    .breath-orb { flex: none; width: 92px; height: 92px; border-radius: 50%; background: radial-gradient(circle at 50% 45%, rgba(169, 178, 73, 0.95) 0%, rgba(169, 178, 73, 0.45) 45%, rgba(0, 70, 81, 0.08) 70%); transform: scale(.72); transition: transform .8s ease; }
+    .breath.running .breath-orb { animation: breathe 10s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { transform: scale(.68); } 50% { transform: scale(1.04); } }
+    .breath h4 { margin: 0 0 4px; font-size: 17px; }
+    .breath h4 small { font-size: 13px; font-weight: 500; color: var(--body); }
+    .breath-msg { min-height: 24px; margin: 0 0 14px; font-size: 14px; line-height: 1.6; color: var(--body); }
+    .breath-msg b { color: var(--main); }
+    .ed-btn.ghost { color: var(--main); background: transparent; box-shadow: inset 0 0 0 1.5px var(--main); }
+    .ed-btn.ghost:hover { background: var(--main-light); }
+    .ed-btn[hidden] { display: none; }
+    .rp-step-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(0, 70, 81, 0.1); }
+    .rp-step-nav [hidden] { display: none; }
+    .rp-step-nav .mini-btn:disabled { visibility: hidden; }
+    @media (max-width: 560px) { .choice-grid { grid-template-columns: 1fr; } .breath { flex-direction: column; text-align: center; } .breath .form-row { justify-content: center; } }
+    @media (prefers-reduced-motion: reduce) { .breath.running .breath-orb { animation: none; transform: scale(.9); } }
     .rp-steps { display: grid; gap: 6px; margin: 0 0 20px; padding: 0; list-style: none; counter-reset: step; }
     .rp-steps li { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; font-size: 14px; background: var(--ivory); border-radius: 4px; counter-increment: step; }
     .rp-steps li::before { content: counter(step); font-family: var(--serif); font-size: 18px; color: var(--main); }
@@ -1288,10 +1326,58 @@
           <button type="button" class="rp-back rp-to-choose">← 리추얼 선택으로</button>
           <div class="card-top"><h2>시작 리추얼</h2><span class="badge" data-state></span></div>
           <p class="card-lead">수업 전 · 운영 45분 (활동 약 35~40분). 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 적어요.</p>
-          <ol class="rp-steps"></ol>
-          <label class="field"><span>오늘 쓸 나의 강점과 가치</span><textarea class="dash-input" name="strength" maxlength="300" rows="2" placeholder="예) 끝까지 붙잡는 끈기"></textarea></label>
-          <label class="field"><span>오늘의 첫 행동</span><textarea class="dash-input" name="action" maxlength="300" rows="2" placeholder="예) 과제 질문을 세 가지로 바꿔 물어보기"></textarea></label>
-          <div class="form-row"><button class="ed-btn" type="submit">시작 리추얼 저장</button><p class="dash-msg" role="status"></p></div>
+          <!-- 5단계를 하나씩 보여 줌. 위의 막대 5개가 진행 정도 -->
+          <ol class="rp-progress" id="rpProgress" aria-label="진행 단계"></ol>
+          <section class="rp-step" data-step="1">
+            <h3><span class="step-no">1단계</span>호흡</h3>
+            <p class="card-lead">편한 방법을 고른 뒤 호흡하기를 시작하세요. 정답은 없어요.</p>
+            <fieldset class="choice"><legend>지금 편한 주의 대상</legend><div class="choice-grid">
+              <label class="choice-card"><input type="radio" name="focus" value="breath"><span><b>호흡</b><small>호흡을 바꾸지 않고 느껴봅니다.</small></span></label>
+              <label class="choice-card"><input type="radio" name="focus" value="senses"><span><b>바깥 감각</b><small>발바닥·의자·주변 색이나 소리를 살펴봅니다.</small></span></label>
+            </div></fieldset>
+            <fieldset class="choice"><legend>눈 상태</legend><div class="choice-grid">
+              <label class="choice-card"><input type="radio" name="eyes" value="open"><span><b>눈을 뜨고 진행</b><small>주변 한 지점을 편하게 봅니다.</small></span></label>
+              <label class="choice-card"><input type="radio" name="eyes" value="closed"><span><b>눈을 감고 진행</b><small>불편하면 언제든 눈을 뜰 수 있습니다.</small></span></label>
+            </div></fieldset>
+            <fieldset class="choice"><legend>자세</legend><div class="choice-grid">
+              <label class="choice-card"><input type="radio" name="posture" value="sit"><span><b>앉아서 진행</b><small>발과 손이 편한 자리를 찾습니다.</small></span></label>
+              <label class="choice-card"><input type="radio" name="posture" value="stand"><span><b>서서 진행</b><small>양발에 실리는 무게를 확인합니다.</small></span></label>
+            </div></fieldset>
+            <!-- 호흡하기 5분: 하는 동안에는 시간을 보여 주지 않고, 끝나면 얼마나 했는지 알려 줌 -->
+            <div class="breath" id="breath">
+              <div class="breath-orb" aria-hidden="true"></div>
+              <div class="breath-body">
+                <h4>호흡하기 <small>5분</small></h4>
+                <p class="breath-msg" id="breathMsg" role="status">준비되면 시작하세요. 5분이 지나면 저절로 끝나요.</p>
+                <div class="form-row">
+                  <button type="button" class="ed-btn" id="breathStart">호흡 시작</button>
+                  <button type="button" class="ed-btn ghost" id="breathStop" hidden>종료하기</button>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="rp-step" data-step="2" hidden>
+            <h3><span class="step-no">2단계</span>편안한 장면 떠올리기 <small>2~3분</small></h3>
+            <p class="card-lead">마음이 편해지는 장면 하나를 천천히 떠올려 보세요. (이 단계 화면은 곧 만들어요)</p>
+          </section>
+          <section class="rp-step" data-step="3" hidden>
+            <h3><span class="step-no">3단계</span>강점·가치 고르기 <small>3~4분</small></h3>
+            <label class="field"><span>오늘 쓸 나의 강점과 가치</span><textarea class="dash-input" name="strength" maxlength="300" rows="2" placeholder="예) 끝까지 붙잡는 끈기"></textarea></label>
+          </section>
+          <section class="rp-step" data-step="4" hidden>
+            <h3><span class="step-no">4단계</span>개인 기록과 서로 인정하기 <small>15~20분</small></h3>
+            <p class="card-lead">오늘의 마음을 짧게 적고, 옆 사람의 좋은 점을 한 가지씩 말해 주세요. (이 단계 화면은 곧 만들어요)</p>
+          </section>
+          <section class="rp-step" data-step="5" hidden>
+            <h3><span class="step-no">5단계</span>행동 계획 <small>6분</small></h3>
+            <label class="field"><span>오늘의 첫 행동</span><textarea class="dash-input" name="action" maxlength="300" rows="2" placeholder="예) 과제 질문을 세 가지로 바꿔 물어보기"></textarea></label>
+            <div class="form-row"><button class="ed-btn" type="submit">시작 리추얼 저장</button></div>
+          </section>
+          <div class="rp-step-nav">
+            <button type="button" class="mini-btn" id="stepPrev">← 이전 단계</button>
+            <button type="button" class="mini-btn solid" id="stepNext">다음 단계 →</button>
+          </div>
+          <p class="dash-msg" role="status"></p>
         </form>
         <form class="rp-card" id="rpClose" data-kind="close" hidden>
           <button type="button" class="rp-back rp-to-choose">← 리추얼 선택으로</button>
@@ -2643,7 +2729,6 @@
     // 오늘 시작·마무리 기록을 쓰고 고침. 강사·관리자 기록은 본인 계정에만 남는 체험 기록
     const ritualPage = document.getElementById('ritualPage');
     const rpForms = [document.getElementById('rpOpen'), document.getElementById('rpClose')];
-    document.querySelector('#rpOpen .rp-steps').append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
     let rpToday = {};
     // 리추얼 페이지 주소: #ritual(고르기) · #ritual/open(시작 리추얼) · #ritual/close(마무리 리추얼). 새로고침해도 그대로
     const ritualKindOf = h => ({ [`${RITUAL_HASH}/open`]: 'open', [`${RITUAL_HASH}/close`]: 'close' })[h] || null;
@@ -2669,6 +2754,7 @@
       const kind = f.dataset.kind, msg = f.querySelector('.dash-msg');
       // form.action 은 폼 속성과 이름이 겹쳐서 elements 로 꺼냄
       const row = Object.fromEntries(RITUALS[kind].fields.map(n => [n, f.elements[n].value.trim()]));
+      if (kind === 'open' && !row.strength) { goStep(3); return say(msg, '3단계에서 오늘 쓸 강점과 가치를 적어 주세요.', true); }
       if (Object.values(row).some(v => !v)) return say(msg, '두 칸을 모두 채워 주세요.', true);
       setBusy(f, true);
       const { error } = rpToday[kind]
@@ -2680,6 +2766,54 @@
       say(msg, `${RITUALS[kind].name}을 저장했어요.`);
       loadLearn();   // 학생 홈 카드도 새로
     }));
+    // ── 시작 리추얼 5단계: 한 단계씩 보여 줌 ──
+    const rpOpen = document.getElementById('rpOpen');
+    const openSteps = [...rpOpen.querySelectorAll('.rp-step')];
+    const rpProgress = document.getElementById('rpProgress');
+    rpProgress.append(...MORNING_STEPS.map(t => el('li', { title: t })));
+    let openStep = 1;
+    function goStep(n) {
+      if (openStep === 1 && n !== 1 && breathStartedAt) stopBreath(false);   // 호흡 중에 다른 단계로 가면 거기까지 기록
+      openStep = n;
+      openSteps.forEach(sec => { sec.hidden = Number(sec.dataset.step) !== n; });
+      [...rpProgress.children].forEach((li, i) => { li.className = i + 1 < n ? 'done' : i + 1 === n ? 'current' : ''; });
+      document.getElementById('stepPrev').disabled = n === 1;
+      document.getElementById('stepNext').hidden = n === openSteps.length;
+      ritualPage.scrollTop = 0;
+    }
+    document.getElementById('stepPrev').addEventListener('click', () => goStep(openStep - 1));
+    document.getElementById('stepNext').addEventListener('click', () => goStep(openStep + 1));
+
+    // 호흡하기 5분: 하는 동안에는 시간을 보이지 않고, 끝나거나 '종료하기'를 누르면 얼마나 했는지 보여 줌
+    const BREATH_MS = 5 * 60 * 1000;
+    const breath = document.getElementById('breath');
+    const breathMsg = document.getElementById('breathMsg');
+    const breathStart = document.getElementById('breathStart');
+    const breathStop = document.getElementById('breathStop');
+    let breathStartedAt = 0, breathTimer = null;
+    const fmtDuration = sec => sec < 60 ? `${sec}초` : `${Math.floor(sec / 60)}분${sec % 60 ? ` ${sec % 60}초` : ''}`;
+    function startBreath() {
+      breathStartedAt = Date.now();
+      breathTimer = setTimeout(() => stopBreath(true), BREATH_MS);
+      breath.classList.add('running');
+      breathStart.hidden = true;
+      breathStop.hidden = false;
+      breathMsg.textContent = '편안하게 호흡을 이어가세요. 얼마나 했는지는 끝난 뒤에 알려 드려요.';
+    }
+    function stopBreath(auto) {
+      clearTimeout(breathTimer);
+      const sec = Math.round(Math.min(Date.now() - breathStartedAt, BREATH_MS) / 1000);
+      breathStartedAt = 0;
+      breath.classList.remove('running');
+      breathStop.hidden = true;
+      breathStart.hidden = false;
+      breathStart.textContent = '다시 하기';
+      breathMsg.replaceChildren(auto ? '5분을 모두 채웠어요. ' : '', el('b', { textContent: fmtDuration(sec) }), ' 동안 호흡했어요.');
+    }
+    breathStart.addEventListener('click', startBreath);
+    breathStop.addEventListener('click', () => stopBreath(false));
+    goStep(1);
+
     const rpChoose = document.getElementById('rpChoose');
     function showRitualChoice() {
       rpChoose.hidden = false;
@@ -2726,6 +2860,7 @@
       const kind = t.dataset.kind, s = history.state;
       const go = () => {
         pushRitual(`${RITUAL_HASH}/${kind}`, (s?.ritual || 0) + 1, !!s?.base);
+        if (kind === 'open') goStep(1);
         showRitualForm(kind);
         document.querySelector(`.rp-card[data-kind="${kind}"] textarea`).focus({ preventScroll: true });
       };
