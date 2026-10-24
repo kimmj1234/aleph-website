@@ -177,9 +177,7 @@
     .rp-back:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
     .ritual-page h1 { margin: 0 0 14px; font-size: clamp(32px, 4vw, 46px); }
     .ritual-page .eyebrow { letter-spacing: 0.06em; text-transform: none; }
-    .rp-sim { margin: 0 0 20px; padding: 12px 16px; font-size: 14px; color: var(--main); background: var(--white); border-left: 4px solid var(--accent); border-radius: 4px; }
-    .rp-sim[hidden] { display: none; }
-    .rp-grid { max-width: 720px; margin-top: 24px; }
+    .rp-grid { max-width: 720px; margin: 24px auto 0; }   /* 기록 칸은 화면 가운데 */
     .rp-card[hidden], .rp-choose[hidden] { display: none; }
     .rp-card .rp-back { margin-bottom: 14px; }
     /* 고르는 상자: 크게, 위에 흰 글씨. 시작은 숲 햇살, 마무리는 도시 야경 사진을 흐리게 깔아 분위기 */
@@ -1303,7 +1301,6 @@
       <button type="button" class="rp-back" id="closeRitualPage">← 메인으로 돌아가기</button>
       <p class="eyebrow" id="rpDate"></p>
       <h1 class="serif" id="ritualPageTitle">오늘의 리추얼</h1>
-      <p class="rp-sim" id="rpSim" hidden>학생 화면 체험 · 이 기록은 내 계정에만 저장되고, 학생 현황과 성장 통계에는 들어가지 않아요.</p>
       <!-- 시작·마무리 중 고르는 큰 상자 두 개. 고르면 그 기록 칸만 보임 -->
       <div class="rp-choose" id="rpChoose">
         <button type="button" class="rp-tile morning" data-kind="open">
@@ -2735,7 +2732,6 @@
     const isRitualHash = h => h === RITUAL_HASH || !!ritualKindOf(h);
     async function openRitualPage(kind = ritualKindOf(location.hash)) {
       document.getElementById('rpDate').textContent = dayLabel(todayKST());
-      document.getElementById('rpSim').hidden = me?.role === 'student';
       ritualPage.hidden = false;
       kind ? showRitualForm(kind) : showRitualChoice();
       const { data, error } = await db.from('rituals').select('kind, strength, action, result, next_action')
