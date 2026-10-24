@@ -958,15 +958,13 @@
       </ul>
     </div>
 
-    <!-- 공지사항: 글 + 사진 -->
-    <section class="split" id="notice" aria-labelledby="noticeTitle">
-      <div class="split-text home-notice">
-        <p class="eyebrow">Notice</p>
-        <h2 class="serif" id="noticeTitle">공지사항</h2>
+    <!-- 아침 리추얼: 글 + 사진 -->
+    <section class="split" id="notice" aria-labelledby="morningTitle">
+      <div class="split-text">
+        <p class="eyebrow">Morning Ritual</p>
+        <h2 class="serif" id="morningTitle">아침 리추얼</h2>
         <hr class="rule">
-        <ul class="notice-list" id="noticeList"></ul>
-        <p class="today-line" id="todayLine"></p>
-        <div><button class="ed-btn" id="noticeMore" type="button" aria-haspopup="dialog">전체 공지 보기</button></div>
+        <p class="body-text">아침 활동은 약 35~40분이며 운영 슬롯은 45분입니다. 호흡부터 차례로 진행합니다.</p>
       </div>
       <div class="split-img"><img src="assets/notice.webp" alt="" width="1600" height="1067" loading="lazy"></div>
     </section>
@@ -1476,7 +1474,7 @@
     function renderNotices(list) {
       const sorted = sortNotices(list);
       const empty = text => [Object.assign(document.createElement('li'), { className: 'empty-row', textContent: text })];
-      document.getElementById('noticeList').replaceChildren(...(sorted.length ? sorted.slice(0, CARD_NOTICES).map(noticeItem) : empty('아직 공지가 없어요.')));
+      document.getElementById('noticeList')?.replaceChildren(...(sorted.length ? sorted.slice(0, CARD_NOTICES).map(noticeItem) : empty('아직 공지가 없어요.')));
       document.getElementById('noticeAllList').replaceChildren(...sorted.map(noticeItem));
       document.getElementById('dlgNoticeCount').textContent = `${sorted.length}개`;
       // 오늘 날짜(이 컴퓨터 기준, YYYY-MM-DD)에 올라온 공지
@@ -1485,11 +1483,12 @@
       document.getElementById('todayList').replaceChildren(...todays.map(noticeItem));
       document.getElementById('dlgTodayCount').textContent = `${todays.length}개`;
       document.getElementById('todayEmpty').hidden = todays.length > 0;
-      document.getElementById('todayLine').innerHTML = todays.length ? `오늘 올라온 공지 <b>${todays.length}개</b>` : '오늘 올라온 공지는 없어요.';
+      const todayLine = document.getElementById('todayLine');   // 메인의 공지 구역은 '아침 리추얼'로 바뀌어 지금은 없음
+      if (todayLine) todayLine.innerHTML = todays.length ? `오늘 올라온 공지 <b>${todays.length}개</b>` : '오늘 올라온 공지는 없어요.';
     }
     const noticeDialog = document.getElementById('noticeDialog');
     const noticeMore = document.getElementById('noticeMore');
-    noticeMore.addEventListener('click', () => noticeDialog.showModal());
+    noticeMore?.addEventListener('click', () => noticeDialog.showModal());
     // 공지·리추얼·과제 제출 창: X로 닫기 + closedby="any" 미지원 브라우저(Safari)는 창 바깥(배경)을 누르면 닫히게
     document.querySelectorAll('dialog[closedby="any"]').forEach(d => {
       d.querySelector('.dialog-close').addEventListener('click', () => d.close());
