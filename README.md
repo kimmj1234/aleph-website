@@ -53,7 +53,8 @@
 - [ ] 공지 창 오른쪽: 댓글 기능
 - [ ] 공지 데이터 서버 연결 (현재 임시 공지 12개)
 - [ ] 메인 문구(특징·교육 과정·취업 준비)를 실제 학원 내용으로 바꾸기 (지금은 임시 문구)
-- [ ] 학원 사진으로 바꾸기 (지금은 클로버 들판·서버실 사진, 해상도가 낮은 세로 사진)
+- [x] 메인 사진 3장 교체 (Unsplash 무료 라이선스) — 인트로 클로버 사진과 겹치지 않게
+- [ ] 나중에 실제 학원 사진으로 바꾸기
 - [ ] 영역 2, 3 내용
 - [x] 로그인·회원가입 창: 학생/강사 선택, 회원가입 2단계(기본 정보 → 추가 정보), 학생·강사별 질문 분리, 입력 확인 (인트로 다음에 꼭 거쳐야 하는 화면, 로그인 전에는 메인으로 못 넘어감. 로그인 후 메뉴바 버튼은 '로그아웃')
 - [ ] 모바일 화면 점검
@@ -127,6 +128,7 @@
 | 2026-10-24 | 관리자 계정 문제 해결: `admin` 아이디의 역할이 강사로 남아 있어 관리자로 지정 (SQL Editor). 첫 실제 가입 성공으로 아이디 저장 방식(`@aleph.local`) 확인 |
 | 2026-10-24 | 강사 화면: 계정 버튼 → 강사 공간(학생 관리·내 프로필). 학생마다 강사 본인만 보는 메모, 비밀번호 변경. 003_teacher.sql 라이브 DB 적용, DB 테스트 추가·통과 |
 | 2026-10-24 | 메인 페이지를 참고 이미지(웰니스 리트리트 페이지) 느낌으로 새로 만듦: 아이보리·모래색 바탕, 명조 제목, 큰 사진, 특징·공지·교육 과정·취업 준비·도움말 구역. 메뉴바도 아이보리·각진 버튼·영문 세리프 로고로. 예전 영역·카드 구조 정리 |
+| 2026-10-24 | 메인 사진 교체: 한 장(클로버)이 인트로·첫 화면·취업 준비에 겹쳐 쓰이던 것을 Unsplash 무료 사진 3장(첫 화면·공지사항 옆·취업 준비)으로. 웹용 webp로 줄여 저장(249·69·203KB) |
 
 ## 서버 설정 (Supabase)
 **연결 완료** — 프로젝트 `aleph-website` (`https://btybbtwrhghebzujrckz.supabase.co`, 서울). 1~4번은 끝났고 5번(관리자 계정)만 남았어요.
@@ -167,6 +169,16 @@
 - 역할은 서버의 `profiles` 표에만 저장되고, 사용자가 스스로 바꿀 수 없어요.
 - DB 규칙 테스트: `bash supabase/test/run.sh` (Docker 필요, Supabase 프로젝트 없이 진짜 Postgres로 확인)
 
+## 사진 출처
+메인 페이지 사진은 [Unsplash 라이선스](https://unsplash.com/license)(상업적 사용 무료, 출처 표기 의무 없음)로 사용해요.
+
+| 파일 | 자리 | 사진 |
+|---|---|---|
+| `assets/hero.webp` | 첫 화면 | [@mikeyharris](https://unsplash.com/photos/qVnyj4NYLZs) |
+| `assets/notice.webp` | 공지사항 옆 | [@purejulia](https://unsplash.com/photos/ZFRWfLssMjM) |
+| `assets/career.webp` | 배움이 진로가 되도록 | [@vvalero](https://unsplash.com/photos/OSSg4KsYFOE) |
+| `assets/bg-clover.webp` | 인트로 | Higgsfield로 생성 |
+
 ## 실행
 빌드 도구 없이 정적 파일만 사용해요.
 
@@ -180,7 +192,7 @@ python -m http.server 8000
 ```
 index.html          메인 페이지 (HTML·CSS·JS 한 파일)
 index.backup.html   초기화 전 시안 (폴더 탭 메뉴, 로그인·회원가입 창)
-assets/             배경 사진, 로고 이미지 (logo-aleph.png = 주황 알레프 시안, 현재 미사용)
+assets/             사진(hero·notice·career = 메인, bg-clover = 인트로), 로고 이미지 (logo-aleph.png·bg-server.webp = 현재 미사용)
 supabase/setup.sql  서버(DB) 초기 설정: 회원 정보·강사 고유 코드·권한 규칙
 supabase/002_dashboard.sql  관리자 대시보드: 공지사항 표, 관리자 회원 이름 수정 권한
 supabase/003_teacher.sql    강사 화면: 강사 프로필(소개·담당 분야), 학생 정보 읽기, 학생 메모 표
