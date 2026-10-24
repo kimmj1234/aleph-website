@@ -168,7 +168,27 @@
     #heroHello, .help-list .eyebrow { letter-spacing: 0.06em; text-transform: none; }
     .split.on-sand { background: var(--sand); }
     .ritual-go { margin-top: 18px; }
-    .ritual-go-note { min-height: 20px; margin: 10px 0 0; font-size: 14px; color: var(--body); }
+    .ed-btn .arrow { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+    .ed-btn:hover .arrow { transform: translateX(3px); }
+    /* 리추얼 페이지: 화면 전체를 덮는 아이보리 페이지 */
+    .ritual-page { position: fixed; inset: 0; z-index: 30; overflow: auto; padding: 32px 0 64px; background: var(--ivory); color: var(--black); }
+    .rp-back { margin: 0 0 28px; padding: 8px 12px 8px 0; border: 0; cursor: pointer; font: inherit; font-size: 15px; font-weight: 600; color: var(--main); background: none; }
+    .rp-back:hover { text-decoration: underline; }
+    .rp-back:focus-visible { outline: 2px solid var(--main); outline-offset: 2px; }
+    .ritual-page h1 { margin: 0 0 14px; font-size: clamp(32px, 4vw, 46px); }
+    .ritual-page .eyebrow { letter-spacing: 0.06em; text-transform: none; }
+    .rp-sim { margin: 0 0 20px; padding: 12px 16px; font-size: 14px; color: var(--main); background: var(--white); border-left: 4px solid var(--accent); border-radius: 4px; }
+    .rp-sim[hidden] { display: none; }
+    .rp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; margin-top: 24px; }
+    .rp-card { padding: 30px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.12); border-radius: 4px; }
+    .rp-card h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 24px; color: var(--main); }
+    .rp-card .card-lead { margin: 12px 0 18px; }
+    .rp-card .dash-input { width: 100%; }
+    .rp-card textarea.dash-input { height: auto; padding: 10px 14px; resize: vertical; line-height: 1.6; }
+    .rp-steps { display: grid; gap: 6px; margin: 0 0 20px; padding: 0; list-style: none; counter-reset: step; }
+    .rp-steps li { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; font-size: 14px; background: var(--ivory); border-radius: 4px; counter-increment: step; }
+    .rp-steps li::before { content: counter(step); font-family: var(--serif); font-size: 18px; color: var(--main); }
+    @media (max-width: 800px) { .rp-grid { grid-template-columns: 1fr; } }
 
     /* 공지사항 (반반 구역의 글 쪽) */
     .home-notice .notice-list { margin: 0 0 18px; }
@@ -967,8 +987,8 @@
         <h2 class="serif" id="morningTitle">아침 리추얼</h2>
         <hr class="rule">
         <p class="body-text">아침 활동은 약 35~40분이며 운영 슬롯은 45분입니다. 호흡부터 차례로 진행합니다.</p>
-        <!-- 리추얼은 학생 홈 '오늘의 학습'에서 씀. 강사·관리자는 그 구역이 없어 누르면 안내만 -->
-        <div class="ritual-go"><a class="ed-btn" id="ritualGo" href="#learn">아침 리추얼 하러 가기</a><p class="ritual-go-note" id="ritualGoNote" role="status"></p></div>
+        <!-- 리추얼 페이지를 엶 (학생·강사·관리자 모두) -->
+        <div class="ritual-go"><button type="button" class="ed-btn" id="ritualGo">리추얼 페이지로 이동<svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
       </div>
       <div class="split-img"><img src="assets/morning.webp" alt="" width="1600" height="900" loading="lazy" style="object-position:34% center"></div>
     </section>
@@ -1195,6 +1215,33 @@
         <p class="dash-msg" id="adminMsg" role="status"></p>
         <ul class="code-list dash-box" id="codeList"></ul>
       </section>
+    </div>
+  </section>
+
+  <!-- 리추얼 페이지: 메인 '리추얼 페이지로 이동'으로 엶. 학생·강사·관리자 모두 사용 (강사·관리자는 체험 기록) -->
+  <section class="ritual-page" id="ritualPage" hidden aria-labelledby="ritualPageTitle">
+    <div class="wrap">
+      <button type="button" class="rp-back" id="closeRitualPage">← 메인으로 돌아가기</button>
+      <p class="eyebrow" id="rpDate"></p>
+      <h1 class="serif" id="ritualPageTitle">오늘의 리추얼</h1>
+      <p class="rp-sim" id="rpSim" hidden>학생 화면 체험 · 이 기록은 내 계정에만 저장되고, 학생 현황과 성장 통계에는 들어가지 않아요.</p>
+      <div class="rp-grid">
+        <form class="rp-card" id="rpOpen" data-kind="open">
+          <div class="card-top"><h2>아침 리추얼</h2><span class="badge" data-state></span></div>
+          <p class="card-lead">수업 전 · 운영 45분 (활동 약 35~40분). 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 적어요.</p>
+          <ol class="rp-steps"></ol>
+          <label class="field"><span>오늘 쓸 나의 강점과 가치</span><textarea class="dash-input" name="strength" maxlength="300" rows="2" placeholder="예) 끝까지 붙잡는 끈기"></textarea></label>
+          <label class="field"><span>오늘의 첫 행동</span><textarea class="dash-input" name="action" maxlength="300" rows="2" placeholder="예) 과제 질문을 세 가지로 바꿔 물어보기"></textarea></label>
+          <div class="form-row"><button class="ed-btn" type="submit">아침 리추얼 저장</button><p class="dash-msg" role="status"></p></div>
+        </form>
+        <form class="rp-card" id="rpClose" data-kind="close">
+          <div class="card-top"><h2>마무리 리추얼</h2><span class="badge" data-state></span></div>
+          <p class="card-lead">수업 후 · 운영 30분. 오늘 실행한 결과와 다음에 할 행동을 정리해요.</p>
+          <label class="field"><span>오늘 실행한 결과</span><textarea class="dash-input" name="result" maxlength="500" rows="3" placeholder="예) 질문 세 개를 비교해 보고 표로 정리했다"></textarea></label>
+          <label class="field"><span>다음 행동</span><textarea class="dash-input" name="next_action" maxlength="300" rows="2" placeholder="예) 내일은 결과물을 인터넷에 올리기"></textarea></label>
+          <div class="form-row"><button class="ed-btn" type="submit">마무리 리추얼 저장</button><p class="dash-msg" role="status"></p></div>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -2524,11 +2571,45 @@
     const STAGE_POINTS = 20;
     const learn = document.getElementById('learn');
     const learnMsg = document.getElementById('learnMsg');
-    document.getElementById('ritualGo').addEventListener('click', e => {
-      if (!learn.hidden) return;   // 학생: 오늘의 학습으로 이동
+    // ── 리추얼 페이지 (학생·강사·관리자) ──
+    // 오늘 아침·마무리 기록을 쓰고 고침. 강사·관리자 기록은 본인 계정에만 남는 체험 기록
+    const ritualPage = document.getElementById('ritualPage');
+    const rpForms = [document.getElementById('rpOpen'), document.getElementById('rpClose')];
+    document.querySelector('#rpOpen .rp-steps').append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
+    let rpToday = {};
+    async function openRitualPage() {
+      document.getElementById('rpDate').textContent = dayLabel(todayKST());
+      document.getElementById('rpSim').hidden = me?.role === 'student';
+      ritualPage.hidden = false;
+      ritualPage.scrollTop = 0;
+      const { data, error } = await db.from('rituals').select('kind, strength, action, result, next_action')
+        .eq('student_id', me.id).eq('day', todayKST());
+      rpToday = Object.fromEntries((error ? [] : data).map(r => [r.kind, r]));
+      rpForms.forEach(f => {
+        const saved = rpToday[f.dataset.kind];
+        RITUALS[f.dataset.kind].fields.forEach(n => { f.elements[n].value = saved?.[n] || ''; });
+        Object.assign(f.querySelector('[data-state]'), { className: `badge ${saved ? 'done' : 'todo'}`, textContent: saved ? '작성함' : '작성 전' });
+        say(f.querySelector('.dash-msg'), error ? '기록을 불러오지 못했어요.' : '', !!error);
+      });
+    }
+    rpForms.forEach(f => f.addEventListener('submit', async e => {
       e.preventDefault();
-      document.getElementById('ritualGoNote').textContent = '아침 리추얼은 학생 계정의 학생 홈에서 기록해요.';
-    });
+      const kind = f.dataset.kind, msg = f.querySelector('.dash-msg');
+      // form.action 은 폼 속성과 이름이 겹쳐서 elements 로 꺼냄
+      const row = Object.fromEntries(RITUALS[kind].fields.map(n => [n, f.elements[n].value.trim()]));
+      if (Object.values(row).some(v => !v)) return say(msg, '두 칸을 모두 채워 주세요.', true);
+      setBusy(f, true);
+      const { error } = rpToday[kind]
+        ? await db.from('rituals').update({ ...row, updated_at: new Date().toISOString() }).eq('student_id', me.id).eq('day', todayKST()).eq('kind', kind)
+        : await db.from('rituals').insert({ kind, ...row });
+      setBusy(f, false);
+      if (error) return say(msg, '저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
+      await openRitualPage();
+      say(msg, `${RITUALS[kind].name}을 저장했어요.`);
+      loadLearn();   // 학생 홈 카드도 새로
+    }));
+    document.getElementById('ritualGo').addEventListener('click', () => me ? openRitualPage() : showAuth('login'));
+    document.getElementById('closeRitualPage').addEventListener('click', () => { ritualPage.hidden = true; });
     let assignments = [], subs = [], allRituals = [], helpReqs = [], currentTask = null, myClass = null;
     const classLabel = c => `${c.name} · ${dayLabel(c.starts_on)} 개강`;
     // 개강 전 안내 (문구는 임시)

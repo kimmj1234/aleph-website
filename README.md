@@ -147,6 +147,7 @@
 | 2026-10-24 | 첫 화면 '공지 확인하기' → '아침 리추얼 알아보기', 도움말 '공지부터 확인하기' → '아침 리추얼부터 시작하기' (둘 다 아침 리추얼 구역으로 이동) |
 | 2026-10-24 | 아침 리추얼 부제목 아래에 '아침 리추얼 하러 가기' 버튼: 학생 홈 '오늘의 학습'(아침 리추얼 시작 카드)으로 이동. 학생이 아니면 그 구역이 없어 버튼도 숨김 |
 | 2026-10-24 | '아침 리추얼 하러 가기' 버튼을 모든 계정에 보이게: 학생은 오늘의 학습으로 이동, 강사·관리자는 누르면 '학생 계정의 학생 홈에서 기록해요' 안내 |
+| 2026-10-24 | **리추얼 페이지** 추가: 메인 버튼 '리추얼 페이지로 이동 →'으로 여는 전체 화면 페이지. 아침(활동 순서 5단계 + 강점·첫 행동)과 마무리(결과·다음 행동)를 쓰고 고침. 학생·강사·관리자 모두 사용, 강사·관리자 기록은 본인 계정에만 남는 체험 기록. 007_ritual_all.sql 라이브 DB 적용, DB 테스트 추가·통과 |
 | 2026-10-24 | 아침 리추얼 옆 사진을 게시판 → 햇살 속에서 명상하는 일러스트로 교체 (Higgsfield Z Image로 글 설명만으로 생성, `assets/morning.webp` 1600×900·30KB). 칸이 정사각형에 가까워 인물이 잘리지 않게 초점을 왼쪽(34%)으로 |
 
 ## 기존 포털 분석 (aleph-omega.vercel.app/cortex)
@@ -175,7 +176,7 @@
 
 1. [supabase.com](https://supabase.com)에서 새 프로젝트 만들기
 2. **Authentication → Sign In / Providers → Email** 에서 **Confirm email 끄기** (아이디로 가입하므로 확인 메일을 보내지 않음)
-3. **SQL Editor** 에 [`setup.sql`](supabase/setup.sql) → [`002_dashboard.sql`](supabase/002_dashboard.sql) → [`003_teacher.sql`](supabase/003_teacher.sql) → [`004_student.sql`](supabase/004_student.sql) → [`005_cortex.sql`](supabase/005_cortex.sql) → [`006_classes.sql`](supabase/006_classes.sql) 순서로 붙여넣고 **Run** (각각 한 번만)
+3. **SQL Editor** 에 [`setup.sql`](supabase/setup.sql) → [`002_dashboard.sql`](supabase/002_dashboard.sql) → [`003_teacher.sql`](supabase/003_teacher.sql) → [`004_student.sql`](supabase/004_student.sql) → [`005_cortex.sql`](supabase/005_cortex.sql) → [`006_classes.sql`](supabase/006_classes.sql) → [`007_ritual_all.sql`](supabase/007_ritual_all.sql) 순서로 붙여넣고 **Run** (각각 한 번만)
 4. **Settings → API Keys** 에서 **Project URL** 과 **Publishable key**(`sb_publishable_…`)를 복사해 `index.html` 의 `SUPABASE_URL`, `SUPABASE_KEY` 에 넣기
    - Publishable key는 브라우저에 공개돼도 되는 키예요. 무엇을 읽고 쓸 수 있는지는 DB 규칙(RLS)이 막아요.
    - **Secret key(`sb_secret_…`)는 절대 넣지 마세요.**
@@ -207,7 +208,7 @@
 | 과제 제출 | 본인, 지금 차례 과제만 | | |
 | 제출 보기 | 본인 것만 | 모든 학생 | 전체 |
 | 제출 상태 바꾸기 | | 강사 확인·다시 제출 요청 | 최종 승인 포함 전부 |
-| 리추얼 쓰기 | 본인, 오늘 + 지난 7일(늦은 작성), 수정은 오늘 것만 | | |
+| 리추얼 쓰기 | 본인, 오늘 + 지난 7일(늦은 작성), 수정은 오늘 것만 | 본인 체험 기록 | 본인 체험 기록 |
 | 리추얼 보기 | 본인 것만 | 모든 학생 | 전체 |
 | 도움 요청 쓰기 | 본인 | | |
 | 반 만들기·고치기·지우기 | | | ✅ |
@@ -252,6 +253,7 @@ supabase/003_teacher.sql    강사 화면: 강사 프로필(소개·담당 분�
 supabase/004_student.sql    학생 홈: 과제 13개, 과제 제출, 아침·마무리 리추얼 표
 supabase/005_cortex.sql     학생 홈 보강: 빠뜨린 리추얼(늦은 작성), 도움 요청 표
 supabase/006_classes.sql    반: 반·입장 요청·반 공지 표
+supabase/007_ritual_all.sql 리추얼 페이지: 강사·관리자도 본인 리추얼(체험 기록) 쓰기
 supabase/test/      setup.sql 동작 확인 테스트 (Docker)
 색상.txt            확정 색상과 대비 메모
 ```
