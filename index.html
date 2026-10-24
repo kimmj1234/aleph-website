@@ -180,7 +180,7 @@
     .ritual-page > .wrap > .rp-back { display: block; margin-left: auto; margin-right: auto; }
     .ritual-page > .wrap > .eyebrow, .ritual-page h1 { text-align: center; }
     .ritual-page .eyebrow { letter-spacing: 0.06em; text-transform: none; }
-    .rp-grid { max-width: 720px; margin: 24px auto 0; }   /* 기록 칸은 화면 가운데 */
+    .rp-grid { max-width: 880px; margin: 24px auto 0; }   /* 기록 칸은 화면 가운데 */
     .rp-card[hidden], .rp-choose[hidden] { display: none; }
     .rp-card .rp-back { margin-bottom: 14px; }
     /* 고르는 상자: 크게, 위에 흰 글씨. 시작은 숲 햇살, 마무리는 도시 야경 사진을 흐리게 깔아 분위기 */
@@ -206,7 +206,7 @@
     .rp-tile-go { white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 12px 20px; border-radius: 4px; font-size: 14px; font-weight: 600; letter-spacing: 0.1em; color: var(--main); background: rgba(243, 240, 232, 0.94); }
     .rp-tile:hover .arrow { transform: translateX(3px); }
     @media (prefers-reduced-motion: reduce) { .rp-tile { transition: none; } .rp-tile:hover { transform: none; } }
-    .rp-card { padding: 30px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.12); border-radius: 4px; }
+    .rp-card { padding: 36px 40px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.12); border-radius: 4px; }
     .rp-card h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 24px; color: var(--main); }
     .rp-card .card-lead { margin: 12px 0 18px; }
     .rp-card .dash-input { width: 100%; }
@@ -268,7 +268,7 @@
     .ritual-page.stage-open .rp-card { color: var(--black); animation: rpRise .9s cubic-bezier(.22, 1, .36, 1) both .25s; box-shadow: 0 30px 60px -30px rgba(0, 20, 25, 0.7); }
     @keyframes rpRise { from { opacity: 0; transform: translateY(18px); } }
     @media (prefers-reduced-motion: reduce) { .ritual-page.stage-open .rp-card { animation: none; } }
-    @media (max-width: 800px) { .rp-choose { grid-template-columns: 1fr; } .rp-tile { min-height: 260px; } }
+    @media (max-width: 800px) { .rp-choose { grid-template-columns: 1fr; } .rp-tile { min-height: 260px; } .rp-card { padding: 28px 22px; } }
 
     /* 공지사항 (반반 구역의 글 쪽) */
     .home-notice .notice-list { margin: 0 0 18px; }
