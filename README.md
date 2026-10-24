@@ -145,6 +145,7 @@
 | 2026-10-24 | 계정 메뉴 위치 수정: 화면 오른쪽 끝에 붙어 넓은 화면에서 계정 버튼과 떨어져 보이던 것을, 열 때마다 계정 버튼 바로 아래(오른쪽 끝 맞춤)로 |
 | 2026-10-24 | 메인의 공지사항 구역을 '아침 리추얼'로 교체: 제목 '아침 리추얼', 부제목 '아침 활동은 약 35~40분이며 운영 슬롯은 45분입니다. 호흡부터 차례로 진행합니다.' (공지 목록·전체 공지 보기 버튼은 메인에서 빠짐) |
 | 2026-10-24 | 첫 화면 '공지 확인하기' → '아침 리추얼 알아보기', 도움말 '공지부터 확인하기' → '아침 리추얼부터 시작하기' (둘 다 아침 리추얼 구역으로 이동) |
+| 2026-10-24 | 아침 리추얼 옆 사진을 게시판 → 햇살 속에서 명상하는 일러스트로 교체 (Higgsfield Z Image로 글 설명만으로 생성, `assets/morning.webp` 1600×900·30KB). 칸이 정사각형에 가까워 인물이 잘리지 않게 초점을 왼쪽(34%)으로 |
 
 ## 기존 포털 분석 (aleph-omega.vercel.app/cortex)
 로그인 뒤 화면이라 공개된 페이지 소스와 사용자 매뉴얼로 구성을 확인했어요 (2026-10-24).
@@ -224,7 +225,8 @@
 | 파일 | 자리 | 사진 |
 |---|---|---|
 | `assets/hero.webp` | 첫 화면 (코드가 띄워진 노트북) | [@emilep](https://unsplash.com/photos/xrVDYZRGdw4) |
-| `assets/notice.webp` | 공지사항 옆 (게시판) | [@kukaka](https://unsplash.com/photos/7PP4RKH8aII) |
+| `assets/morning.webp` | 아침 리추얼 옆, 힉스필드로 생성한 일러스트 (햇살 속 명상) | Higgsfield(Z Image)로 생성 |
+| `assets/notice.webp` | 공지사항 옆 (게시판, 현재 미사용) | [@kukaka](https://unsplash.com/photos/7PP4RKH8aII) |
 | `assets/career.webp` | 배움이 진로가 되도록 (노트북 앞에 모여 과제하는 학생들) | [@silverkblack](https://unsplash.com/photos/8gAbl776pc0) |
 | `assets/bg-clover.webp` | 인트로 | Higgsfield로 생성 |
 
@@ -241,7 +243,7 @@ python -m http.server 8000
 ```
 index.html          메인 페이지 (HTML·CSS·JS 한 파일)
 index.backup.html   초기화 전 시안 (폴더 탭 메뉴, 로그인·회원가입 창)
-assets/             사진(hero·notice·career = 메인, bg-clover = 인트로), 로고 이미지 (logo-aleph.png·bg-server.webp = 현재 미사용)
+assets/             사진(hero·morning·career = 메인, bg-clover = 인트로), 로고 이미지 (logo-aleph.png·bg-server.webp·notice.webp = 현재 미사용)
 supabase/setup.sql  서버(DB) 초기 설정: 회원 정보·강사 고유 코드·권한 규칙
 supabase/002_dashboard.sql  관리자 대시보드: 공지사항 표, 관리자 회원 이름 수정 권한
 supabase/003_teacher.sql    강사 화면: 강사 프로필(소개·담당 분야), 학생 정보 읽기, 학생 메모 표
