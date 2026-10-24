@@ -208,27 +208,45 @@
     .help-list p { margin: 0; font-family: var(--serif); font-size: 18px; color: var(--main); }
     .site-foot { padding: 28px 16px 36px; text-align: center; font-size: 12px; letter-spacing: 0.12em; color: var(--body); }
 
-    /* 학생 홈: 오늘의 리추얼 · 과제 진행 · 내 제출 현황 카드 3장 */
+    /* 학생 홈 (기존 포털 cortex 구성): 3열 격자, 넓은 카드는 2칸 */
     .learn { padding: 72px 0 64px; }
     .learn-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 32px; }
+    .learn-head .eyebrow { letter-spacing: 0.06em; text-transform: none; }
     .learn-head h2 { margin: 0; font-size: clamp(28px, 3vw, 38px); }
-    .learn-date { margin: 0; font-family: var(--serif); font-size: 17px; color: var(--main); }
+    .learn-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .learn-chips .badge { padding: 6px 12px; font-size: 13px; }
+    .streak { font-size: 14px; font-weight: 600; color: var(--main); }
     .learn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: start; }
     .learn-card { padding: 28px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.12); border-radius: 4px; }
+    .learn-card.span-2 { grid-column: span 2; }
     .learn-card h3 { margin: 0 0 20px; font-family: var(--serif); font-weight: 400; font-size: 21px; color: var(--main); }
-    .ritual-list, .sub-list { margin: 0; padding: 0; list-style: none; }
-    .ritual-list li, .sub-list li { padding: 16px 0; border-top: 1px solid rgba(0, 70, 81, 0.12); }
-    .ritual-list li:first-child, .sub-list li:first-child { padding-top: 0; border-top: 0; }
+    .learn-card .eyebrow { margin: 0 0 6px; letter-spacing: 0.06em; text-transform: none; }
+    .card-lead { margin: -8px 0 18px; font-size: 14px; line-height: 1.7; color: var(--body); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .muted-note { font-size: 13px; color: var(--body); }
+    .sub-head { margin: 24px 0 10px; font-size: 14px; font-weight: 600; color: var(--main); }
+    /* 오늘의 리추얼 카드 */
+    #todayCard h3 { margin-bottom: 14px; }
+    .morning-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 0 0 22px; padding: 0; list-style: none; counter-reset: step; }
+    .morning-steps li { padding: 14px 12px; font-size: 13px; line-height: 1.5; color: var(--black); background: var(--ivory); border-radius: 4px; counter-increment: step; }
+    .morning-steps li::before { content: counter(step); display: block; margin-bottom: 6px; font-family: var(--serif); font-size: 20px; color: var(--main); }
+    .quote { margin: 0 0 20px; font-family: var(--serif); font-size: clamp(22px, 2.4vw, 28px); line-height: 1.45; color: var(--main); }
+    .first-action { margin: 0 0 22px; font-size: 16px; line-height: 1.7; }
+    .close-box { padding-top: 20px; border-top: 1px solid rgba(0, 70, 81, 0.12); }
+    .quote-sm { margin: 0 0 14px; font-family: var(--serif); font-size: 18px; line-height: 1.6; color: var(--main); }
+    .close-box .card-lead { margin: 0 0 14px; }
+    /* 목록 공통 */
+    .sub-list, .missed-list, .help-req-list, .thoughts { margin: 0; padding: 0; list-style: none; }
+    .sub-list li, .missed-list li, .help-req-list li { padding: 14px 0; border-top: 1px solid rgba(0, 70, 81, 0.12); }
+    .sub-list li:first-child, .missed-list li:first-child { padding-top: 0; border-top: 0; }
     .ritual-top { display: flex; align-items: center; gap: 10px; }
-    .ritual-top strong { font-size: 15px; }
-    .ritual-top .mini-btn { margin-left: auto; }
-    .ritual-list p { margin: 8px 0 0; font-size: 14px; line-height: 1.7; color: var(--body); }
-    .ritual-list p b { font-weight: 600; color: var(--main); }
+    .ritual-top small { font-size: 12px; color: var(--body); }
     .badge { flex: none; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; color: var(--main); background: var(--main-light); }
     .badge.done, .badge.approved { background: var(--accent); }   /* 연두 면 위 딥 틸 글씨 4.59:1 */
     .badge.checked { background: var(--sand); }
     .badge.returned { color: #b3261e; background: #fbeceb; }
     .badge.todo { color: var(--body); background: none; box-shadow: inset 0 0 0 1px rgba(0, 70, 81, 0.25); }
+    /* 과제 진행 */
     .progress-num { margin: 0; font-family: var(--serif); font-size: 44px; line-height: 1; color: var(--main); }
     .progress-num small { font-size: 16px; color: var(--body); }
     .learn progress { display: block; width: 100%; height: 6px; margin: 16px 0 22px; border: 0; border-radius: 999px; appearance: none; background: var(--main-light); overflow: hidden; }
@@ -236,17 +254,39 @@
     .learn progress::-webkit-progress-value { background: var(--accent); }
     .learn progress::-moz-progress-bar { background: var(--accent); }
     .current { padding-top: 18px; border-top: 1px solid rgba(0, 70, 81, 0.12); }
-    .current .eyebrow { margin: 0 0 6px; letter-spacing: 0.06em; text-transform: none; }
     .current h4 { margin: 0 0 8px; font-size: 17px; font-weight: 600; }
     .current p { margin: 0 0 16px; font-size: 14px; line-height: 1.7; color: var(--body); }
     .current .form-row { gap: 10px; }
+    /* 내가 이어 온 흔적: 최근 4주 칸 (한 줄 = 한 주) */
+    .hist-meta { margin: -8px 0 18px; font-size: 14px; color: var(--body); }
+    .hist-meta b { font-size: 16px; color: var(--main); }
+    .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 300px; }
+    .heatmap .cell { aspect-ratio: 1; border-radius: 4px; background: var(--main-light); }
+    .heatmap .l1 { background: #d6dba4; }   /* 연두 옅게 (면 전용) */
+    .heatmap .l2 { background: var(--accent); }
+    .heatmap .today { box-shadow: inset 0 0 0 2px var(--main); }
+    .heat-note { margin: 10px 0 0; font-size: 12px; color: var(--body); }
+    .thoughts li { padding: 10px 14px; margin-bottom: 8px; font-family: var(--serif); font-size: 15px; line-height: 1.6; color: var(--main); background: var(--ivory); border-left: 2px solid var(--accent); }
+    /* 내 제출 현황 */
     .sub-list li { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 2px 12px; }
     .sub-list .t { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sub-list small { font-size: 12px; color: var(--body); }
     .sub-list small a { color: var(--main); }
-    .sub-list .empty-row, .ritual-list .empty-row { display: block; font-size: 14px; color: var(--body); }
+    /* 빠뜨린 리추얼 */
+    .missed-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; }
+    /* 도움 요청 */
+    .help-form { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; margin-bottom: 8px; }
+    .help-form textarea.dash-input { width: 100%; height: auto; padding: 10px 12px; resize: vertical; line-height: 1.6; }
+    .help-req-list p { margin: 6px 0 0; font-size: 14px; line-height: 1.6; }
+    .help-req-list .a { padding: 8px 12px; color: var(--main); background: var(--main-light); border-radius: 4px; white-space: pre-wrap; }
+    .empty-row { display: block; font-size: 14px; color: var(--body); }
+    .thoughts .empty-row { padding: 0; font-family: inherit; background: none; border: 0; color: var(--body); }
     #learnMsg { margin-top: 14px; }
-    @media (max-width: 900px) { .learn-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) {
+      .learn-grid { grid-template-columns: 1fr; }
+      .learn-card.span-2 { grid-column: auto; }
+      .morning-steps { grid-template-columns: 1fr 1fr; }
+    }
 
     @media (max-width: 900px) {
       .features ul { grid-template-columns: repeat(2, 1fr); }
@@ -477,6 +517,9 @@
       padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--black); background: var(--white);
     }
     .chip-group.wrap { flex-wrap: wrap; }
+    .help-admin-list li { display: block; padding: 18px 20px; }
+    .help-admin-list .q { margin: 8px 0 10px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
+    .help-admin-list textarea.dash-input { width: 100%; height: auto; min-height: 70px; padding: 10px 12px; resize: vertical; line-height: 1.6; margin-bottom: 8px; }
     .review-links { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
     .review-links a { color: var(--main); }
     .review-links .muted { max-width: 260px; white-space: pre-wrap; }
@@ -829,30 +872,48 @@
       </div>
     </section>
 
-    <!-- 학생 홈 (학생만): 오늘의 리추얼 · 과제 진행 · 내 제출 현황 -->
+    <!-- 학생 홈 (학생만): 기존 포털 학생 대시보드(cortex) 구성 — 오늘의 리추얼 · 과제 진행 · 기록 · 제출 현황 · 빠뜨린 리추얼 · 도움 요청 -->
     <section class="learn" id="learn" aria-labelledby="learnTitle" hidden>
       <div class="wrap">
         <div class="learn-head">
           <div>
-            <p class="eyebrow">Today</p>
-            <h2 class="serif" id="learnTitle">오늘의 학습</h2>
+            <p class="eyebrow" id="learnDate"></p>
+            <h2 class="serif" id="learnTitle">오늘을 준비하고 정리하는 시간</h2>
           </div>
-          <p class="learn-date" id="learnDate"></p>
+          <div class="learn-chips"><span class="badge" id="chipOpen"></span><span class="badge" id="chipClose"></span><span class="streak" id="streak" hidden></span></div>
         </div>
         <div class="learn-grid">
-          <article class="learn-card" aria-labelledby="ritualCardTitle">
-            <h3 id="ritualCardTitle">오늘의 리추얼</h3>
-            <ul class="ritual-list" id="ritualList"></ul>
-          </article>
+          <article class="learn-card span-2" id="todayCard" aria-label="오늘의 리추얼"></article>
           <article class="learn-card" aria-labelledby="progressTitle">
             <h3 id="progressTitle">과제 진행</h3>
             <p class="progress-num"><span id="doneCount">0</span><small> / <span id="totalCount">13</span> 완료</small></p>
             <progress id="progressBar" max="13" value="0" aria-labelledby="progressTitle"></progress>
             <div class="current" id="currentTask"></div>
           </article>
+          <article class="learn-card span-2" aria-labelledby="historyTitle">
+            <h3 id="historyTitle">내가 이어 온 흔적</h3>
+            <p class="hist-meta">리추얼 누적 <b id="ritualTotal">0</b>회 · 성장 점수 <b id="growthScore">0</b>점 · 성장 단계 <b id="growthStage">1</b> / 7</p>
+            <div class="heatmap" id="heatmap" role="img"></div>
+            <p class="heat-note">최근 4주 · 칸 하나가 하루 (옅은 칸 = 아침이나 마무리 하나, 진한 칸 = 둘 다)</p>
+            <h4 class="sub-head">기록에서 건져 올린 문장들</h4>
+            <ul class="thoughts" id="thoughts"></ul>
+          </article>
           <article class="learn-card" aria-labelledby="subsTitle">
             <h3 id="subsTitle">내 제출 현황</h3>
             <ul class="sub-list" id="subList"></ul>
+          </article>
+          <article class="learn-card span-2" aria-labelledby="missedTitle">
+            <h3 id="missedTitle">빠뜨린 리추얼</h3>
+            <p class="card-lead">지난 7일 동안 못 쓴 리추얼을 채울 수 있어요. 늦게 쓴 기록은 0.5점이에요.</p>
+            <ul class="missed-list" id="missedList"></ul>
+          </article>
+          <article class="learn-card" aria-labelledby="helpTitle2">
+            <h3 id="helpTitle2">도움 요청</h3>
+            <form class="help-form" id="helpForm">
+              <textarea class="dash-input" name="question" maxlength="1000" rows="3" placeholder="막힌 부분을 적어 주세요. 담당 선생님이 답해 드려요." aria-label="도움 요청 내용"></textarea>
+              <button class="mini-btn solid" type="submit">보내기</button>
+            </form>
+            <ul class="help-req-list" id="helpReqList"></ul>
           </article>
         </div>
         <p class="dash-msg" id="learnMsg" role="status"></p>
@@ -958,6 +1019,7 @@
         <button type="button" data-tab="codes" data-for="admin">강사 고유 코드</button>
         <button type="button" data-tab="students" data-for="teacher">학생 관리</button>
         <button type="button" data-tab="review" data-for="teacher admin">과제 확인</button>
+        <button type="button" data-tab="help" data-for="teacher admin">도움 요청</button>
         <button type="button" data-tab="profile" data-for="teacher admin">내 프로필</button>
       </nav>
       <button type="button" class="dash-back" id="closeDash">← 사이트로 돌아가기</button>
@@ -1029,6 +1091,12 @@
             <tbody id="reviewRows"></tbody>
           </table>
         </div>
+      </section>
+      <section class="dash-panel" id="tab-help" hidden>
+        <h1 class="card-title">도움 요청</h1>
+        <p class="lead">학생이 학생 홈에서 보낸 질문이에요. 답을 저장하면 학생 화면에 바로 보여요. 답하지 않은 질문이 위에 와요.</p>
+        <p class="dash-msg" id="helpMsg" role="status"></p>
+        <ul class="dash-list dash-box help-admin-list" id="helpAdminList"></ul>
       </section>
       <section class="dash-panel" id="tab-profile" hidden>
         <h1 class="card-title">내 프로필</h1>
@@ -1740,7 +1808,7 @@
     const dash = document.getElementById('dashboard');
     const dashTabs = [...dash.querySelectorAll('.dash-nav [data-tab]')];
     const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes,
-                      students: loadStudents, profile: loadProfile, review: loadReview };
+                      students: loadStudents, profile: loadProfile, review: loadReview, help: loadHelpAdmin };
     function showTab(name) {
       dashTabs.forEach(b => b.dataset.tab === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
       dash.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
@@ -2104,6 +2172,40 @@
       }));
     }
 
+    // 도움 요청 (강사·관리자): 학생 질문에 답하기. 답한 사람은 서버 규칙상 본인으로만 저장됨
+    const helpAdminList = document.getElementById('helpAdminList');
+    const helpMsg = document.getElementById('helpMsg');
+    async function loadHelpAdmin() {
+      const { data, error } = await db.from('help_requests')
+        .select('id, question, answer, answered_at, created_at, student:profiles!student_id(name, userid)')
+        .order('created_at', { ascending: false });
+      if (error) return say(helpMsg, '도움 요청을 불러오지 못했어요.', true);
+      const list = [...data].sort((a, b) => !!a.answer - !!b.answer);   // 답 안 한 것 먼저 (같은 묶음 안에서는 최신순 유지)
+      helpAdminList.replaceChildren(...(list.length ? list.map(q => {
+        const li = el('li');
+        const top = el('div', { className: 'ritual-top' });
+        top.append(el('strong', { textContent: q.student ? `${q.student.name} (${q.student.userid})` : '-' }),
+          el('small', { textContent: fmtDate(q.created_at) }),
+          el('span', { className: `badge ${q.answer ? 'done' : 'todo'}`, textContent: q.answer ? '답변 완료' : '답변 대기' }));
+        const ta = el('textarea', { className: 'dash-input', maxLength: 2000, value: q.answer || '', placeholder: '답변을 적어 주세요', ariaLabel: '답변' });
+        const save = el('button', { type: 'button', className: 'mini-btn solid', textContent: q.answer ? '답변 고치기' : '답변 저장' });
+        save.addEventListener('click', async () => {
+          const answer = ta.value.trim();
+          if (!answer) return say(helpMsg, '답변 내용을 입력해 주세요.', true);
+          save.disabled = true;
+          const { error } = await db.from('help_requests').update({ answer, answered_by: me.id, answered_at: new Date().toISOString() }).eq('id', q.id);
+          save.disabled = false;
+          if (error) return say(helpMsg, '답변을 저장하지 못했어요.', true);
+          say(helpMsg, `${q.student?.name ?? '학생'}에게 답변을 저장했어요.`);
+          loadHelpAdmin();
+        });
+        const row = el('div', { className: 'form-row' });
+        row.append(save);
+        li.append(top, el('p', { className: 'q', textContent: q.question }), ta, row);
+        return li;
+      }) : [el('li', { className: 'empty', textContent: '아직 도움 요청이 없어요.' })]));
+    }
+
     // 강사 고유 코드: 발급 · 보기/복사 · 사용 전 코드 삭제
     const codeList = document.getElementById('codeList');
     const adminMsg = document.getElementById('adminMsg');
@@ -2158,54 +2260,100 @@
       loadCodes();
     });
 
-    // ── 학생 홈: 오늘의 리추얼 · 과제 진행 · 내 제출 현황 ──
-    // 날짜는 한국 시간 기준 (서버도 같은 기준으로 오늘 리추얼을 저장)
-    const todayKST = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+    // ── 학생 홈 (기존 포털 cortex 구성) ──
+    // 날짜는 한국 시간 기준 (서버도 같은 기준으로 리추얼 날짜를 정함)
+    const kstDate = d => d.toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
+    const todayKST = () => kstDate(new Date());
+    const addDays = (ymd, n) => kstDate(new Date(Date.parse(`${ymd}T12:00:00+09:00`) + n * 864e5));
+    const dayLabel = ymd => new Date(`${ymd}T12:00:00+09:00`).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'short' });
     const RITUALS = {
-      open: { name: '아침 리추얼', eyebrow: 'Morning', fields: ['strength', 'action'], labels: ['강점', '행동'],
-              lead: '수업 전에, 오늘 쓸 나의 강점과 오늘 할 행동 하나를 적어요.' },
-      close: { name: '마무리 리추얼', eyebrow: 'Evening', fields: ['result', 'next_action'], labels: ['결과', '다음'],
+      open: { name: '아침 리추얼', short: '아침', eyebrow: 'Morning', fields: ['strength', 'action'], labels: ['강점', '행동'],
+              lead: '수업 전에, 오늘 쓸 나의 강점·가치와 오늘의 첫 행동을 적어요.' },
+      close: { name: '마무리 리추얼', short: '마무리', eyebrow: 'Evening', fields: ['result', 'next_action'], labels: ['결과', '다음'],
                lead: '수업 후에, 오늘 실행한 결과와 다음에 할 행동을 정리해요.' },
     };
+    // 아침 활동 순서 (기존 포털 안내 그대로)
+    const MORNING_STEPS = ['호흡 5분', '편안한 장면 떠올리기 2~3분', '강점·가치 고르기 3~4분', '개인 기록과 서로 인정하기 15~20분', '행동 계획 6분'];
+    // ponytail: 성장 단계는 임시 기준(20점마다 1단계, 최대 7). 실제 기준이 정해지면 이 숫자만 바꿈
+    const STAGE_POINTS = 20;
     const learn = document.getElementById('learn');
     const learnMsg = document.getElementById('learnMsg');
-    let assignments = [], subs = [], rituals = {}, currentTask = null;
+    let assignments = [], subs = [], allRituals = [], helpReqs = [], currentTask = null;
+    const ritualOf = (day, kind) => allRituals.find(r => r.day === day && r.kind === kind);
+    const isLate = r => kstDate(new Date(r.created_at)) > r.day;
     async function loadLearn() {
       learn.hidden = DEMO || me?.role !== 'student';
       if (learn.hidden) return;
-      const [a, s, r] = await Promise.all([
+      const [a, s, r, h] = await Promise.all([
         db.from('assignments').select('no, label, title, description').order('no'),
         db.from('submissions').select('assignment_no, result_url, source_url, status, created_at').eq('student_id', me.id).order('created_at', { ascending: false }),
-        db.from('rituals').select('kind, strength, action, result, next_action').eq('student_id', me.id).eq('day', todayKST()),
+        db.from('rituals').select('day, kind, strength, action, result, next_action, created_at').eq('student_id', me.id).order('day', { ascending: false }),
+        db.from('help_requests').select('id, question, answer, answered_at, created_at').eq('student_id', me.id).order('created_at', { ascending: false }),
       ]);
-      if (a.error || s.error || r.error) return say(learnMsg, '학습 정보를 불러오지 못했어요. 새로고침해 주세요.', true);
+      if (a.error || s.error || r.error || h.error) return say(learnMsg, '학습 정보를 불러오지 못했어요. 새로고침해 주세요.', true);
       assignments = a.data;
       subs = s.data;
-      rituals = Object.fromEntries(r.data.map(x => [x.kind, x]));
+      allRituals = r.data;
+      helpReqs = h.data;
       say(learnMsg, '');
       renderLearn();
     }
     function renderLearn() {
-      document.getElementById('learnDate').textContent =
-        new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'long' });
-      // 리추얼: 아침·마무리 각각 작성 여부와 내용
-      document.getElementById('ritualList').replaceChildren(...Object.entries(RITUALS).map(([kind, R]) => {
-        const done = rituals[kind];
-        const li = el('li');
-        const top = el('div', { className: 'ritual-top' });
-        top.append(el('strong', { textContent: R.name }),
-          el('span', { className: `badge ${done ? 'done' : 'todo'}`, textContent: done ? '작성함' : '작성 전' }),
-          el('button', { type: 'button', className: 'mini-btn' + (done ? '' : ' solid'), textContent: done ? '고치기' : '작성하기',
-            onclick: () => openRitual(kind) }));
-        li.append(top);
-        if (done) R.fields.forEach((f, i) => {
-          const p = el('p');
-          p.append(el('b', { textContent: `${R.labels[i]} ` }), done[f]);
-          li.append(p);
-        });
-        return li;
-      }));
-      // 과제 진행: 최종 승인된 과제 수 + 지금 차례 과제 (앞 과제가 승인돼야 다음 과제가 열림)
+      const today = todayKST();
+      const open = ritualOf(today, 'open'), close = ritualOf(today, 'close');
+      document.getElementById('learnDate').textContent = dayLabel(today);
+      const chip = (id, R, done) => Object.assign(document.getElementById(id), { className: `badge ${done ? 'done' : 'todo'}`, textContent: `${R.short} ${done ? '완료' : '전'}` });
+      chip('chipOpen', RITUALS.open, open);
+      chip('chipClose', RITUALS.close, close);
+      // 연속 기록: 오늘(아직 안 썼으면 어제)부터 거꾸로 하루도 안 빠지고 쓴 날 수
+      const days = new Set(allRituals.map(r => r.day));
+      let d = days.has(today) ? today : addDays(today, -1), streak = 0;
+      while (days.has(d)) { streak++; d = addDays(d, -1); }
+      Object.assign(document.getElementById('streak'), { hidden: !streak, textContent: `🔥 ${streak}일 연속` });
+      renderToday(open, close);
+      renderProgress();
+      renderHistory(today);
+      renderSubs();
+      renderMissed(today);
+      renderHelp();
+    }
+    // 오늘의 리추얼: 아침 전에는 '시작할 준비' 안내, 아침 뒤에는 오늘 쓸 강점·첫 행동 + 마무리
+    function renderToday(open, close) {
+      const card = document.getElementById('todayCard');
+      if (!open) {
+        const ol = el('ol', { className: 'morning-steps' });
+        ol.append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
+        const row = el('div', { className: 'form-row' });
+        row.append(el('button', { type: 'button', className: 'ed-btn', textContent: '아침 리추얼 시작', onclick: () => openRitual('open') }),
+          el('span', { className: 'muted-note', textContent: '운영 45분' }));
+        return card.replaceChildren(el('p', { className: 'eyebrow', textContent: '오늘의 시작' }),
+          el('h3', { textContent: '아침 리추얼을 시작할 준비' }),
+          el('p', { className: 'card-lead', textContent: '아침 활동은 약 35~40분이에요. 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 기록해요.' }),
+          ol, row);
+      }
+      const head = el('div', { className: 'card-top' });
+      head.append(el('p', { className: 'eyebrow', textContent: '오늘의 행동 기준' }),
+        el('button', { type: 'button', className: 'mini-btn', textContent: '아침 기록 고치기', onclick: () => openRitual('open') }));
+      const closeBox = el('div', { className: 'close-box' });
+      if (close) {
+        closeBox.append(el('p', { className: 'eyebrow', textContent: '마무리 리추얼 · 완료' }),
+          el('p', { className: 'quote-sm', textContent: close.result }),
+          el('p', { className: 'card-lead', textContent: `다음 행동: ${close.next_action}` }),
+          el('button', { type: 'button', className: 'mini-btn', textContent: '마무리 기록 고치기', onclick: () => openRitual('close') }));
+      } else {
+        const row = el('div', { className: 'form-row' });
+        row.append(el('button', { type: 'button', className: 'ed-btn', textContent: '마무리 리추얼 시작', onclick: () => openRitual('close') }),
+          el('span', { className: 'muted-note', textContent: '수업 후 · 운영 30분' }));
+        closeBox.append(el('p', { className: 'eyebrow', textContent: '마무리 리추얼' }),
+          el('p', { className: 'card-lead', textContent: '수업을 마치면 오늘 실행한 결과와 다음 행동을 정리해요.' }), row);
+      }
+      card.replaceChildren(head, el('h3', { textContent: '오늘 쓸 강점과 가치' }),
+        el('p', { className: 'quote', textContent: open.strength }),
+        el('p', { className: 'eyebrow', textContent: '오늘의 첫 행동' }),
+        el('p', { className: 'first-action', textContent: open.action }), closeBox);
+    }
+    // 과제 진행: 최종 승인된 과제 수 + 지금 차례 과제 (앞 과제가 승인돼야 다음 과제가 열림)
+    function renderProgress() {
       const approved = new Set(subs.filter(x => x.status === 'approved').map(x => x.assignment_no));
       currentTask = assignments.find(t => !approved.has(t.no)) || null;
       document.getElementById('doneCount').textContent = approved.size;
@@ -2213,53 +2361,115 @@
       Object.assign(document.getElementById('progressBar'), { max: assignments.length, value: approved.size });
       const cur = document.getElementById('currentTask');
       if (!currentTask) {
-        cur.replaceChildren(el('h4', { textContent: '모든 과제를 마쳤어요 🎉' }), el('p', { textContent: '수고했어요. 다음 단계는 담당 선생님과 상의해요.' }));
-      } else {
-        const last = subs.find(x => x.assignment_no === currentTask.no);
-        const row = el('div', { className: 'form-row' });
-        row.append(el('button', { type: 'button', className: 'ed-btn', textContent: last ? '다시 제출하기' : '제출하기', onclick: openSubmit }),
-          el('span', { className: `badge ${last ? last.status : 'todo'}`, textContent: last ? STATUS[last.status] : '제출 전' }));
-        cur.replaceChildren(el('p', { className: 'eyebrow', textContent: `지금 할 과제 · ${currentTask.label}` }),
-          el('h4', { textContent: currentTask.title }), el('p', { textContent: currentTask.description }), row);
+        return cur.replaceChildren(el('h4', { textContent: '모든 과제를 마쳤어요 🎉' }), el('p', { textContent: '수고했어요. 다음 단계는 담당 선생님과 상의해요.' }));
       }
-      // 내 제출 현황: 최근 6개
-      const title = no => assignments.find(t => t.no === no);
+      const last = subs.find(x => x.assignment_no === currentTask.no);
+      const row = el('div', { className: 'form-row' });
+      row.append(el('button', { type: 'button', className: 'ed-btn', textContent: last ? '다시 제출하기' : '제출하기', onclick: openSubmit }),
+        el('span', { className: `badge ${last ? last.status : 'todo'}`, textContent: last ? STATUS[last.status] : '제출 전' }));
+      cur.replaceChildren(el('p', { className: 'eyebrow', textContent: `지금 할 과제 · ${currentTask.label}` }),
+        el('h4', { textContent: currentTask.title }), el('p', { textContent: currentTask.description }), row);
+    }
+    // 내가 이어 온 흔적: 누적·성장 점수(제때 1점, 늦게 0.5점)·단계 + 최근 4주 칸 + 기록에서 건진 문장
+    function renderHistory(today) {
+      const score = allRituals.reduce((n, r) => n + (isLate(r) ? 0.5 : 1), 0);
+      document.getElementById('ritualTotal').textContent = allRituals.length;
+      document.getElementById('growthScore').textContent = score;
+      document.getElementById('growthStage').textContent = Math.min(7, 1 + Math.floor(score / STAGE_POINTS));
+      const start = addDays(today, -27);
+      const cells = Array.from({ length: 28 }, (_, i) => {
+        const day = addDays(start, i);
+        const n = ['open', 'close'].filter(k => ritualOf(day, k)).length;
+        return el('span', { className: `cell l${n}${day === today ? ' today' : ''}`, title: `${dayLabel(day)} · ${n ? `${n}개 기록` : '기록 없음'}` });
+      });
+      const hm = document.getElementById('heatmap');
+      hm.replaceChildren(...cells);
+      hm.setAttribute('aria-label', `최근 4주 중 ${new Set(allRituals.filter(r => r.day >= start).map(r => r.day)).size}일 기록`);
+      const lines = [...new Set(allRituals.map(r => r.kind === 'close' ? r.result : r.strength).filter(Boolean))].slice(0, 3);
+      document.getElementById('thoughts').replaceChildren(...(lines.length ? lines.map(t => el('li', { textContent: t }))
+        : [el('li', { className: 'empty-row', textContent: '리추얼을 쓰면 여기에 문장이 모여요.' })]));
+    }
+    // 내 제출 현황: 최근 6개
+    function renderSubs() {
       document.getElementById('subList').replaceChildren(...(subs.length ? subs.slice(0, 6).map(x => {
-        const t = title(x.assignment_no);
+        const t = assignments.find(a => a.no === x.assignment_no);
         const li = el('li');
         const meta = el('small', { textContent: `${fmtDate(x.created_at)} · ` });
-        const url = x.result_url || x.source_url;
-        meta.append(el('a', { href: url, target: '_blank', rel: 'noopener', textContent: x.result_url ? '결과물 열기' : '소스 열기' }));
+        meta.append(el('a', { href: x.result_url || x.source_url, target: '_blank', rel: 'noopener', textContent: x.result_url ? '결과물 열기' : '소스 열기' }));
         li.append(el('span', { className: 't', textContent: `${t.label} ${t.title}`, title: t.title }),
           el('span', { className: `badge ${x.status}`, textContent: STATUS[x.status] }), meta);
         return li;
       }) : [el('li', { className: 'empty-row', textContent: '아직 제출한 과제가 없어요.' })]));
     }
+    // 빠뜨린 리추얼: 지난 7일(주말 제외) 중 아침·마무리 못 쓴 날
+    function renderMissed(today) {
+      const rows = [];
+      for (let i = 1; i <= 7; i++) {
+        const day = addDays(today, -i);
+        const wd = new Date(`${day}T12:00:00+09:00`).getUTCDay();
+        if (wd === 0 || wd === 6) continue;
+        const kinds = ['open', 'close'].filter(k => !ritualOf(day, k));
+        if (!kinds.length) continue;
+        const li = el('li');
+        const btns = el('div', { className: 'row-btns' });
+        btns.append(...kinds.map(k => el('button', { type: 'button', className: 'mini-btn', textContent: `${RITUALS[k].short} 쓰기`, onclick: () => openRitual(k, day) })));
+        li.append(el('span', { textContent: dayLabel(day) }), btns);
+        rows.push(li);
+      }
+      document.getElementById('missedList').replaceChildren(...(rows.length ? rows : [el('li', { className: 'empty-row', textContent: '빠뜨린 리추얼이 없어요. 잘하고 있어요!' })]));
+    }
+    // 도움 요청: 최근 5개 + 선생님 답변
+    function renderHelp() {
+      document.getElementById('helpReqList').replaceChildren(...helpReqs.slice(0, 5).map(q => {
+        const li = el('li');
+        const top = el('div', { className: 'ritual-top' });
+        top.append(el('small', { textContent: fmtDate(q.created_at) }),
+          el('span', { className: `badge ${q.answer ? 'done' : 'todo'}`, textContent: q.answer ? '답변 완료' : '답변 대기' }));
+        li.append(top, el('p', { className: 'q', textContent: q.question }));
+        if (q.answer) li.append(el('p', { className: 'a', textContent: q.answer }));
+        return li;
+      }));
+    }
+    const helpForm = document.getElementById('helpForm');
+    helpForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const question = helpForm.question.value.trim();
+      if (!question) return say(learnMsg, '도움 받고 싶은 내용을 적어 주세요.', true);
+      setBusy(helpForm, true);
+      const { error } = await db.from('help_requests').insert({ question });
+      setBusy(helpForm, false);
+      if (error) return say(learnMsg, '도움 요청을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
+      helpForm.reset();
+      await loadLearn();
+      say(learnMsg, '도움 요청을 보냈어요. 선생님이 답하면 여기에 보여요.');
+    });
 
     const ritualDialog = document.getElementById('ritualDialog');
     const ritualForm = document.getElementById('ritualForm');
     const ritualMsg = document.getElementById('ritualMsg');
-    function openRitual(kind) {
+    // day: 빠뜨린 리추얼을 늦게 쓸 때의 날짜 (없으면 오늘)
+    function openRitual(kind, day = todayKST()) {
       const R = RITUALS[kind];
-      ritualForm.dataset.kind = kind;
-      document.getElementById('ritualEyebrow').textContent = R.eyebrow;
+      const late = day !== todayKST();
+      Object.assign(ritualForm.dataset, { kind, day });
+      document.getElementById('ritualEyebrow').textContent = late ? `${dayLabel(day)} · 늦은 작성 (0.5점)` : R.eyebrow;
       document.getElementById('ritualTitle').textContent = R.name;
-      document.getElementById('ritualLead').textContent = R.lead;
+      document.getElementById('ritualLead').textContent = kind === 'open' && !late ? `${R.lead} 활동 순서: ${MORNING_STEPS.join(' → ')}` : R.lead;
       ritualForm.querySelectorAll('.field').forEach(f => { f.hidden = f.dataset.kind !== kind; });
       // form.action 은 폼 속성과 이름이 겹쳐서 elements 로 꺼냄
-      R.fields.forEach(f => { ritualForm.elements[f].value = rituals[kind]?.[f] || ''; });
+      R.fields.forEach(f => { ritualForm.elements[f].value = ritualOf(day, kind)?.[f] || ''; });
       say(ritualMsg, '');
       ritualDialog.showModal();
     }
     ritualForm.addEventListener('submit', async e => {
       e.preventDefault();
-      const kind = ritualForm.dataset.kind;
+      const { kind, day } = ritualForm.dataset;
       const row = Object.fromEntries(RITUALS[kind].fields.map(f => [f, ritualForm.elements[f].value.trim()]));
       if (Object.values(row).some(v => !v)) return say(ritualMsg, '두 칸을 모두 채워 주세요.', true);
       setBusy(ritualForm, true);
-      const { error } = rituals[kind]
-        ? await db.from('rituals').update({ ...row, updated_at: new Date().toISOString() }).eq('student_id', me.id).eq('day', todayKST()).eq('kind', kind)
-        : await db.from('rituals').insert({ kind, ...row });
+      const { error } = ritualOf(day, kind)
+        ? await db.from('rituals').update({ ...row, updated_at: new Date().toISOString() }).eq('student_id', me.id).eq('day', day).eq('kind', kind)
+        : await db.from('rituals').insert({ kind, ...row, ...(day !== todayKST() && { day }) });
       setBusy(ritualForm, false);
       if (error) return say(ritualMsg, '저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
       ritualDialog.close();
