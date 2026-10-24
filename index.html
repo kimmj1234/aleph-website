@@ -282,6 +282,22 @@
     .empty-row { display: block; font-size: 14px; color: var(--body); }
     .thoughts .empty-row { padding: 0; font-family: inherit; background: none; border: 0; color: var(--body); }
     #learnMsg { margin-top: 14px; }
+    /* 반 공지 띠 + 반 입장 전 카드 */
+    .class-banner { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding: 14px 18px; background: var(--white); border: 1px solid rgba(0, 70, 81, 0.12); border-left: 4px solid var(--accent); border-radius: 4px; }
+    .class-banner[hidden], .learn-grid[hidden], .learn-chips[hidden] { display: none; }
+    .class-banner b { flex: none; font-size: 13px; color: var(--main); }
+    .class-banner p { flex: 1; margin: 0; font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+    .class-gate { max-width: 760px; }
+    .class-gate h3 { margin-bottom: 10px; font-size: clamp(22px, 2.4vw, 28px); }
+    .class-gate .card-lead { margin: 0 0 20px; }
+    .class-pick { display: flex; flex-wrap: wrap; gap: 10px; }
+    .class-pick select { flex: 1; min-width: 220px; }
+    .dday { display: inline-block; margin: 0 0 18px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--main); background: var(--accent); }
+    .class-gate .check-list { margin: 0 0 8px; }
+    .class-notice-list { margin: 0; padding: 0; list-style: none; }
+    .class-notice-list li { padding: 12px 0; border-top: 1px solid rgba(0, 70, 81, 0.12); font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+    .class-notice-list small { display: block; margin-top: 4px; font-size: 12px; color: var(--body); }
+    @media (max-width: 600px) { .class-banner { flex-wrap: wrap; } }
     @media (max-width: 900px) {
       .learn-grid { grid-template-columns: 1fr; }
       .learn-card.span-2 { grid-column: auto; }
@@ -517,6 +533,10 @@
       padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--black); background: var(--white);
     }
     .chip-group.wrap { flex-wrap: wrap; }
+    .date-input { flex: none; width: auto; }
+    .notice-form select.dash-input { flex: none; min-width: 160px; }
+    .class-notice-form textarea.dash-input { flex: 1; min-width: 240px; height: auto; padding: 10px 14px; resize: vertical; line-height: 1.6; }
+    .dash-table select.dash-input { height: 36px; }
     .help-admin-list li { display: block; padding: 18px 20px; }
     .help-admin-list .q { margin: 8px 0 10px; font-size: 15px; line-height: 1.6; white-space: pre-wrap; }
     .help-admin-list textarea.dash-input { width: 100%; height: auto; min-height: 70px; padding: 10px 12px; resize: vertical; line-height: 1.6; margin-bottom: 8px; }
@@ -880,9 +900,17 @@
             <p class="eyebrow" id="learnDate"></p>
             <h2 class="serif" id="learnTitle">오늘을 준비하고 정리하는 시간</h2>
           </div>
-          <div class="learn-chips"><span class="badge" id="chipOpen"></span><span class="badge" id="chipClose"></span><span class="streak" id="streak" hidden></span></div>
+          <div class="learn-chips" id="learnChips"><span class="badge" id="chipOpen"></span><span class="badge" id="chipClose"></span><span class="streak" id="streak" hidden></span></div>
         </div>
-        <div class="learn-grid">
+        <!-- 반 공지: 가장 최근 것 하나. '공지 숨기기'를 누르면 새 공지가 올 때까지 숨김 -->
+        <div class="class-banner" id="classBanner" role="note" hidden>
+          <b id="classBannerLabel"></b>
+          <p id="classBannerText"></p>
+          <button type="button" class="mini-btn" id="classBannerClose">공지 숨기기</button>
+        </div>
+        <!-- 반 입장 전: 반 선택·승인 대기·개강 전 안내 -->
+        <article class="learn-card class-gate" id="classGate" hidden></article>
+        <div class="learn-grid" id="learnGrid">
           <article class="learn-card span-2" id="todayCard" aria-label="오늘의 리추얼"></article>
           <article class="learn-card" aria-labelledby="progressTitle">
             <h3 id="progressTitle">과제 진행</h3>
@@ -1018,6 +1046,9 @@
         <button type="button" data-tab="notices" data-for="admin">공지 관리</button>
         <button type="button" data-tab="codes" data-for="admin">강사 고유 코드</button>
         <button type="button" data-tab="students" data-for="teacher">학생 관리</button>
+        <button type="button" data-tab="classes" data-for="admin">반 관리</button>
+        <button type="button" data-tab="approvals" data-for="teacher admin">입장 승인</button>
+        <button type="button" data-tab="classNotices" data-for="teacher admin">반 공지</button>
         <button type="button" data-tab="review" data-for="teacher admin">과제 확인</button>
         <button type="button" data-tab="help" data-for="teacher admin">도움 요청</button>
         <button type="button" data-tab="profile" data-for="teacher admin">내 프로필</button>
@@ -1091,6 +1122,46 @@
             <tbody id="reviewRows"></tbody>
           </table>
         </div>
+      </section>
+      <section class="dash-panel" id="tab-classes" hidden>
+        <h1 class="card-title">반 관리</h1>
+        <p class="lead">반을 만들고 개강일과 담당 강사를 정해요. 학생은 학생 홈에서 반을 골라 입장을 요청하고, 담당 강사나 관리자가 승인해요.</p>
+        <form class="notice-form" id="classForm">
+          <input class="dash-input" name="name" maxlength="40" placeholder="반 이름 (예: 대전 C반)" aria-label="반 이름" autocomplete="off">
+          <input class="dash-input date-input" type="date" name="starts_on" aria-label="개강일">
+          <select class="dash-input" name="teacher_id" aria-label="담당 강사"></select>
+          <button class="mini-btn solid" type="submit">반 만들기</button>
+        </form>
+        <p class="dash-msg" id="classMsg" role="status"></p>
+        <div class="table-wrap dash-box">
+          <table class="dash-table">
+            <thead><tr><th>반 이름</th><th>개강일</th><th>담당 강사</th><th>학생</th><th></th></tr></thead>
+            <tbody id="classRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="dash-panel" id="tab-approvals" hidden>
+        <h1 class="card-title">입장 승인</h1>
+        <p class="lead" id="approvalLead"></p>
+        <div class="dash-tools"><div class="chip-group wrap" id="approvalChips" role="group" aria-label="상태로 거르기"></div></div>
+        <p class="dash-msg" id="approvalMsg" role="status"></p>
+        <div class="table-wrap dash-box">
+          <table class="dash-table">
+            <thead><tr><th>학생</th><th>반</th><th>요청일</th><th>상태</th><th></th></tr></thead>
+            <tbody id="approvalRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="dash-panel" id="tab-classNotices" hidden>
+        <h1 class="card-title">반 공지</h1>
+        <p class="lead">고른 반의 승인된 학생에게만 보여요. 가장 최근 공지는 학생 홈 맨 위 띠에, 개강 전에는 개강 안내 아래에 보여요.</p>
+        <form class="notice-form class-notice-form" id="classNoticeForm">
+          <select class="dash-input" name="cls" aria-label="반 선택"></select>
+          <textarea class="dash-input" name="body" maxlength="500" rows="2" placeholder="반 공지 내용" aria-label="반 공지 내용"></textarea>
+          <button class="mini-btn solid" type="submit">공지 올리기</button>
+        </form>
+        <p class="dash-msg" id="classNoticeMsg" role="status"></p>
+        <ul class="dash-list dash-box" id="classNoticeAdminList"></ul>
       </section>
       <section class="dash-panel" id="tab-help" hidden>
         <h1 class="card-title">도움 요청</h1>
@@ -1808,7 +1879,8 @@
     const dash = document.getElementById('dashboard');
     const dashTabs = [...dash.querySelectorAll('.dash-nav [data-tab]')];
     const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes,
-                      students: loadStudents, profile: loadProfile, review: loadReview, help: loadHelpAdmin };
+                      students: loadStudents, profile: loadProfile, review: loadReview, help: loadHelpAdmin,
+                      classes: loadClasses, approvals: loadApprovals, classNotices: loadClassNotices };
     function showTab(name) {
       dashTabs.forEach(b => b.dataset.tab === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
       dash.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
@@ -2172,6 +2244,170 @@
       }));
     }
 
+    // ── 반 (관리자: 반 관리 / 강사·관리자: 입장 승인·반 공지) ──
+    // 강사는 담당 반만 승인하고 공지를 쓸 수 있음 (서버 규칙)
+    let classes = [];
+    async function fetchClasses() {
+      const { data, error } = await db.from('classes').select('id, name, starts_on, teacher_id').order('starts_on');
+      classes = error ? [] : data;
+      return !error;
+    }
+    const myClasses = () => me.role === 'admin' ? classes : classes.filter(c => c.teacher_id === me.id);
+    const classOptions = (sel, list, empty) => sel.replaceChildren(...(list.length
+      ? list.map(c => el('option', { value: c.id, textContent: c.name })) : [el('option', { value: '', textContent: empty })]));
+
+    // 반 관리 (관리자): 만들기 · 개강일·담당 강사 고치기 · 지우기
+    const classForm = document.getElementById('classForm');
+    const classRows = document.getElementById('classRows');
+    const classMsg = document.getElementById('classMsg');
+    let teachers = [];
+    const fillTeachers = (sel, value) => {
+      sel.replaceChildren(el('option', { value: '', textContent: '담당 강사 없음' }), ...teachers.map(t => el('option', { value: t.id, textContent: `${t.name} (${t.userid})` })));
+      sel.value = value || '';
+      return sel;
+    };
+    const teacherSelect = (value, label) => fillTeachers(el('select', { className: 'dash-input', ariaLabel: label }), value);
+    async function loadClasses() {
+      const [ok, t, m] = await Promise.all([fetchClasses(),
+        db.from('profiles').select('id, name, userid').eq('role', 'teacher').order('name'),
+        db.from('class_members').select('class_id, status')]);
+      if (!ok || t.error || m.error) return say(classMsg, '반 목록을 불러오지 못했어요.', true);
+      teachers = t.data;
+      fillTeachers(classForm.elements.teacher_id, classForm.elements.teacher_id.value);
+      const count = (id, st) => m.data.filter(x => x.class_id === id && x.status === st).length;
+      if (!classes.length) {
+        const td = el('td', { className: 'muted', colSpan: 5, textContent: '아직 만든 반이 없어요.' });
+        return classRows.replaceChildren(el('tr').appendChild(td).parentNode);
+      }
+      classRows.replaceChildren(...classes.map(c => {
+        const date = el('input', { type: 'date', className: 'dash-input', value: c.starts_on, ariaLabel: `${c.name} 개강일` });
+        const tsel = teacherSelect(c.teacher_id, `${c.name} 담당 강사`);
+        const save = el('button', { type: 'button', className: 'mini-btn', textContent: '저장', async onclick() {
+          if (!date.value) return say(classMsg, '개강일을 입력해 주세요.', true);
+          const { error } = await db.from('classes').update({ starts_on: date.value, teacher_id: tsel.value || null }).eq('id', c.id);
+          say(classMsg, error ? '저장하지 못했어요.' : `${c.name} 정보를 저장했어요.`, !!error);
+          loadClasses();
+        } });
+        const del = el('button', { type: 'button', className: 'mini-btn danger', textContent: '삭제', async onclick() {
+          if (!confirm(`${c.name}을(를) 지울까요? 이 반의 입장 요청과 반 공지도 함께 지워져요.`)) return;
+          const { error } = await db.from('classes').delete().eq('id', c.id);
+          say(classMsg, error ? '지우지 못했어요.' : `${c.name}을(를) 지웠어요.`, !!error);
+          loadClasses();
+        } });
+        const btns = el('div', { className: 'row-btns' });
+        btns.append(save, del);
+        const tr = el('tr');
+        tr.append(el('td', { textContent: c.name }), el('td'), el('td'),
+          el('td', { className: 'muted', textContent: `승인 ${count(c.id, 'approved')} · 대기 ${count(c.id, 'pending')}` }), el('td'));
+        tr.children[1].append(date);
+        tr.children[2].append(tsel);
+        tr.children[4].append(btns);
+        return tr;
+      }));
+    }
+    classForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      // form.name 은 폼 속성과 이름이 겹쳐서 elements 로 꺼냄
+      const f = classForm.elements;
+      const name = f.name.value.trim();
+      if (!name || !f.starts_on.value) return say(classMsg, '반 이름과 개강일을 입력해 주세요.', true);
+      const { error } = await db.from('classes').insert({ name, starts_on: f.starts_on.value, teacher_id: f.teacher_id.value || null });
+      if (error) return say(classMsg, error.code === '23505' ? '같은 이름의 반이 이미 있어요.' : '반을 만들지 못했어요.', true);
+      classForm.reset();
+      say(classMsg, `${name}을(를) 만들었어요.`);
+      loadClasses();
+    });
+
+    // 입장 승인 (강사: 담당 반만 / 관리자: 모든 반)
+    const MEMBER_STATUS = { pending: '승인 대기', approved: '승인됨', rejected: '거절됨' };
+    const approvalRows = document.getElementById('approvalRows');
+    const approvalMsg = document.getElementById('approvalMsg');
+    const approvalChips = document.getElementById('approvalChips');
+    let classRequests = [], memberStatus = 'pending';
+    approvalChips.append(...[...Object.entries(MEMBER_STATUS), ['', '전체']].map(([v, t]) =>
+      el('button', { type: 'button', textContent: t, value: v, onclick() { memberStatus = v; renderApprovals(); } })));
+    async function loadApprovals() {
+      document.getElementById('approvalLead').textContent = me.role === 'admin'
+        ? '학생의 반 입장 요청을 승인하거나 거절해요. 승인된 학생은 개강일부터 학습 화면을 쓸 수 있어요.'
+        : '내가 담당한 반의 입장 요청이에요. 승인된 학생은 개강일부터 학습 화면을 쓸 수 있어요.';
+      const [ok, { data, error }] = await Promise.all([fetchClasses(),
+        db.from('class_members').select('student_id, class_id, status, requested_at, student:profiles!student_id(name, userid)').order('requested_at', { ascending: false })]);
+      if (!ok || error) return say(approvalMsg, '입장 요청을 불러오지 못했어요.', true);
+      const mine = new Set(myClasses().map(c => c.id));
+      classRequests = data.filter(x => mine.has(x.class_id));
+      renderApprovals();
+    }
+    function renderApprovals() {
+      approvalChips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.value === memberStatus));
+      const list = classRequests.filter(x => !memberStatus || x.status === memberStatus);
+      if (!list.length) {
+        const td = el('td', { className: 'muted', colSpan: 5, textContent: myClasses().length ? '해당하는 요청이 없어요.' : '담당한 반이 없어요. 관리자에게 반 배정을 요청하세요.' });
+        return approvalRows.replaceChildren(el('tr').appendChild(td).parentNode);
+      }
+      const decide = (x, status) => async function () {
+        this.disabled = true;
+        const { data, error } = await db.from('class_members').update({ status, decided_by: me.id, decided_at: new Date().toISOString() })
+          .eq('student_id', x.student_id).select('student_id');
+        if (error || !data.length) { this.disabled = false; return say(approvalMsg, '처리하지 못했어요. 담당 반인지 확인해 주세요.', true); }
+        say(approvalMsg, `${x.student?.name ?? '학생'}: ${MEMBER_STATUS[status]}`);
+        loadApprovals();
+      };
+      approvalRows.replaceChildren(...list.map(x => {
+        const btns = el('div', { className: 'row-btns' });
+        if (x.status !== 'approved') btns.append(el('button', { type: 'button', className: 'mini-btn solid', textContent: '승인', onclick: decide(x, 'approved') }));
+        if (x.status !== 'rejected') btns.append(el('button', { type: 'button', className: 'mini-btn danger', textContent: '거절', onclick: decide(x, 'rejected') }));
+        const tr = el('tr');
+        tr.append(el('td', { textContent: x.student ? `${x.student.name} (${x.student.userid})` : '-' }),
+          el('td', { textContent: classes.find(c => c.id === x.class_id)?.name ?? '-' }),
+          el('td', { className: 'muted', textContent: fmtDate(x.requested_at) }),
+          el('td'), el('td'));
+        tr.children[3].append(el('span', { className: `badge ${{ approved: 'done', rejected: 'returned', pending: 'todo' }[x.status]}`, textContent: MEMBER_STATUS[x.status] }));
+        tr.children[4].append(btns);
+        return tr;
+      }));
+    }
+
+    // 반 공지 (강사: 담당 반 / 관리자: 모든 반)
+    const classNoticeForm = document.getElementById('classNoticeForm');
+    const classNoticeMsg = document.getElementById('classNoticeMsg');
+    const classNoticeAdminList = document.getElementById('classNoticeAdminList');
+    async function loadClassNotices() {
+      const prev = classNoticeForm.cls.value;
+      if (!await fetchClasses()) return say(classNoticeMsg, '반 목록을 불러오지 못했어요.', true);
+      classOptions(classNoticeForm.cls, myClasses(), '담당한 반이 없어요');
+      if (prev && myClasses().some(c => String(c.id) === prev)) classNoticeForm.cls.value = prev;
+      const cid = Number(classNoticeForm.cls.value);
+      if (!cid) return classNoticeAdminList.replaceChildren(el('li', { className: 'empty', textContent: '담당한 반이 없어요. 관리자에게 반 배정을 요청하세요.' }));
+      const { data, error } = await db.from('class_notices').select('id, body, created_by, created_at').eq('class_id', cid).order('created_at', { ascending: false });
+      if (error) return say(classNoticeMsg, '반 공지를 불러오지 못했어요.', true);
+      classNoticeAdminList.replaceChildren(...(data.length ? data.map(n => {
+        const li = el('li');
+        li.append(el('span', { className: 't', textContent: n.body, title: n.body }), el('time', { textContent: fmtDate(n.created_at) }));
+        if (n.created_by === me.id || me.role === 'admin') {
+          li.append(el('button', { type: 'button', className: 'mini-btn danger', textContent: '삭제', async onclick() {
+            if (!confirm('이 반 공지를 지울까요?')) return;
+            const { error } = await db.from('class_notices').delete().eq('id', n.id);
+            say(classNoticeMsg, error ? '지우지 못했어요.' : '반 공지를 지웠어요.', !!error);
+            loadClassNotices();
+          } }));
+        }
+        return li;
+      }) : [el('li', { className: 'empty', textContent: '이 반에 올린 공지가 없어요.' })]));
+    }
+    classNoticeForm.cls.addEventListener('change', loadClassNotices);
+    classNoticeForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const body = classNoticeForm.body.value.trim();
+      const class_id = Number(classNoticeForm.cls.value);
+      if (!class_id) return say(classNoticeMsg, '공지를 올릴 반이 없어요.', true);
+      if (!body) return say(classNoticeMsg, '공지 내용을 입력해 주세요.', true);
+      const { error } = await db.from('class_notices').insert({ class_id, body });
+      if (error) return say(classNoticeMsg, '공지를 올리지 못했어요. 담당 반인지 확인해 주세요.', true);
+      classNoticeForm.body.value = '';
+      say(classNoticeMsg, '반 공지를 올렸어요. 이 반 학생들의 학생 홈에 바로 보여요.');
+      loadClassNotices();
+    });
+
     // 도움 요청 (강사·관리자): 학생 질문에 답하기. 답한 사람은 서버 규칙상 본인으로만 저장됨
     const helpAdminList = document.getElementById('helpAdminList');
     const helpMsg = document.getElementById('helpMsg');
@@ -2278,12 +2514,101 @@
     const STAGE_POINTS = 20;
     const learn = document.getElementById('learn');
     const learnMsg = document.getElementById('learnMsg');
-    let assignments = [], subs = [], allRituals = [], helpReqs = [], currentTask = null;
+    let assignments = [], subs = [], allRituals = [], helpReqs = [], currentTask = null, myClass = null;
+    const classLabel = c => `${c.name} · ${dayLabel(c.starts_on)} 개강`;
+    // 개강 전 안내 (문구는 임시)
+    const BEFORE_START = ['로그인 아이디와 비밀번호를 잊지 않게 적어 두세요.', '수업에 쓸 노트북과 충전기를 준비해 주세요.',
+                          '외부 AI 도구(LLM) 하나에 미리 가입해 두세요.', '아래 반 공지를 자주 확인해 주세요.'];
+    function renderClassGate(classes, notices) {
+      const gate = document.getElementById('classGate');
+      const cls = myClass?.class;
+      // 반 선택 (처음이거나 거절된 경우)
+      if (!myClass || myClass.status === 'rejected') {
+        const head = [el('p', { className: 'eyebrow', textContent: '반 입장' }), el('h3', { textContent: '수업을 들을 반을 선택해 주세요' }),
+          el('p', { className: 'card-lead', textContent: myClass
+            ? `${cls.name} 입장 요청이 승인되지 않았어요. 반을 다시 확인하고 선택해 주세요.`
+            : '반을 고르고 입장을 요청하면, 담당 선생님이 확인한 뒤 학습을 시작할 수 있어요.' })];
+        if (!classes.length) return gate.replaceChildren(...head, el('p', { className: 'empty-row', textContent: '아직 열린 반이 없어요. 학원에 문의해 주세요.' }));
+        const form = el('form', { className: 'class-pick' });
+        const sel = el('select', { className: 'dash-input', name: 'cls', ariaLabel: '반 선택' });
+        sel.append(...classes.map(x => el('option', { value: x.id, textContent: classLabel(x) })));
+        form.append(sel, el('button', { type: 'submit', className: 'ed-btn', textContent: '입장 요청' }));
+        form.addEventListener('submit', async e => {
+          e.preventDefault();
+          setBusy(form, true);
+          if (myClass) await db.from('class_members').delete().eq('student_id', me.id);   // 거절된 요청을 지우고 새로
+          const { error } = await db.from('class_members').insert({ class_id: Number(sel.value) });
+          setBusy(form, false);
+          if (error) return say(learnMsg, '입장 요청을 보내지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
+          await loadLearn();
+          say(learnMsg, '입장을 요청했어요. 선생님이 승인하면 학습을 시작할 수 있어요.');
+        });
+        return gate.replaceChildren(...head, form);
+      }
+      // 승인 대기
+      if (myClass.status === 'pending') {
+        return gate.replaceChildren(el('p', { className: 'eyebrow', textContent: '승인 대기' }),
+          el('h3', { textContent: '입장 승인을 기다리고 있어요' }),
+          el('p', { className: 'card-lead', textContent: `${classLabel(cls)} — 담당 선생님이 승인하면 학습을 시작할 수 있어요.` }),
+          el('button', { type: 'button', className: 'mini-btn', textContent: '요청 취소', async onclick() {
+            if (!confirm('입장 요청을 취소할까요?')) return;
+            const { error } = await db.from('class_members').delete().eq('student_id', me.id);
+            if (error) return say(learnMsg, '요청을 취소하지 못했어요.', true);
+            loadLearn();
+          } }));
+      }
+      // 승인됐지만 개강 전: 개강 정보 + 개강 전 확인 + 반 공지
+      const dday = Math.round((Date.parse(`${cls.starts_on}T00:00:00+09:00`) - Date.parse(`${todayKST()}T00:00:00+09:00`)) / 864e5);
+      const check = el('ul', { className: 'check-list' });
+      check.append(...BEFORE_START.map(t => el('li', { textContent: t })));
+      const list = el('ul', { className: 'class-notice-list' });
+      list.append(...(notices.length ? notices.map(n => {
+        const li = el('li', { textContent: n.body });
+        li.append(el('small', { textContent: fmtDate(n.created_at) }));
+        return li;
+      }) : [el('li', { className: 'empty-row', textContent: '아직 반 공지가 없어요.' })]));
+      gate.replaceChildren(el('p', { className: 'eyebrow', textContent: '개강 정보' }),
+        el('h3', { textContent: `${cls.name} 수업은 ${dayLabel(cls.starts_on)}에 시작합니다.` }),
+        el('span', { className: 'dday', textContent: `개강까지 D-${dday}` }),
+        el('h4', { className: 'sub-head', textContent: '개강 전에 확인해 주세요' }), check,
+        el('h4', { className: 'sub-head', textContent: '반 공지' }), list);
+    }
+    // 반 공지 띠: 숨긴 공지(이 브라우저에만 기억)보다 새 공지가 오면 다시 보임
+    const HIDE_KEY = 'aleph-hidden-class-notice';
+    function renderClassBanner(n) {
+      let hidden = null;
+      try { hidden = localStorage.getItem(HIDE_KEY); } catch {}
+      const banner = document.getElementById('classBanner');
+      banner.hidden = !n || hidden === String(n.id);
+      if (banner.hidden) return;
+      document.getElementById('classBannerLabel').textContent = `반 공지 · ${myClass.class.name}`;
+      document.getElementById('classBannerText').textContent = n.body;
+      document.getElementById('classBannerClose').onclick = () => {
+        try { localStorage.setItem(HIDE_KEY, n.id); } catch {}
+        banner.hidden = true;
+      };
+    }
     const ritualOf = (day, kind) => allRituals.find(r => r.day === day && r.kind === kind);
     const isLate = r => kstDate(new Date(r.created_at)) > r.day;
     async function loadLearn() {
       learn.hidden = DEMO || me?.role !== 'student';
       if (learn.hidden) return;
+      // 반: 승인되고 개강한 뒤에만 학습 화면. 그 전에는 반 선택·승인 대기·개강 전 안내
+      const [m, c] = await Promise.all([
+        db.from('class_members').select('class_id, status, class:classes(name, starts_on)').eq('student_id', me.id).maybeSingle(),
+        db.from('classes').select('id, name, starts_on').order('starts_on'),
+      ]);
+      if (m.error || c.error) return say(learnMsg, '반 정보를 불러오지 못했어요. 새로고침해 주세요.', true);
+      say(learnMsg, '');
+      myClass = m.data;
+      const notices = myClass?.status === 'approved'
+        ? (await db.from('class_notices').select('id, body, created_at').eq('class_id', myClass.class_id).order('created_at', { ascending: false })).data || []
+        : [];
+      const started = myClass?.status === 'approved' && myClass.class.starts_on <= todayKST();
+      document.getElementById('learnGrid').hidden = document.getElementById('learnChips').hidden = !started;
+      document.getElementById('classGate').hidden = started;
+      renderClassBanner(started ? notices[0] : null);
+      if (!started) return renderClassGate(c.data, notices);
       const [a, s, r, h] = await Promise.all([
         db.from('assignments').select('no, label, title, description').order('no'),
         db.from('submissions').select('assignment_no, result_url, source_url, status, created_at').eq('student_id', me.id).order('created_at', { ascending: false }),
