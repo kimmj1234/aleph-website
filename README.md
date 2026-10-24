@@ -129,6 +129,7 @@
 | 2026-10-24 | 강사 화면: 계정 버튼 → 강사 공간(학생 관리·내 프로필). 학생마다 강사 본인만 보는 메모, 비밀번호 변경. 003_teacher.sql 라이브 DB 적용, DB 테스트 추가·통과 |
 | 2026-10-24 | 메인 페이지를 참고 이미지(웰니스 리트리트 페이지) 느낌으로 새로 만듦: 아이보리·모래색 바탕, 명조 제목, 큰 사진, 특징·공지·교육 과정·취업 준비·도움말 구역. 메뉴바도 아이보리·각진 버튼·영문 세리프 로고로. 예전 영역·카드 구조 정리 |
 | 2026-10-24 | 메인 사진 교체: 한 장(클로버)이 인트로·첫 화면·취업 준비에 겹쳐 쓰이던 것을 Unsplash 무료 사진 3장(첫 화면·공지사항 옆·취업 준비)으로. 웹용 webp로 줄여 저장(249·69·203KB) |
+| 2026-10-24 | 사진 다시 고름: 첫 화면은 노트북 화면에 코드가 보이는 사진, 공지사항 옆은 게시판, 취업 준비는 노트북 앞에 모여 함께 과제를 푸는 학생들. 칸 모양에 맞게 모두 가로 사진으로(95·112·87KB) |
 
 ## 서버 설정 (Supabase)
 **연결 완료** — 프로젝트 `aleph-website` (`https://btybbtwrhghebzujrckz.supabase.co`, 서울). 1~4번은 끝났고 5번(관리자 계정)만 남았어요.
@@ -174,9 +175,9 @@
 
 | 파일 | 자리 | 사진 |
 |---|---|---|
-| `assets/hero.webp` | 첫 화면 | [@mikeyharris](https://unsplash.com/photos/qVnyj4NYLZs) |
-| `assets/notice.webp` | 공지사항 옆 | [@purejulia](https://unsplash.com/photos/ZFRWfLssMjM) |
-| `assets/career.webp` | 배움이 진로가 되도록 | [@vvalero](https://unsplash.com/photos/OSSg4KsYFOE) |
+| `assets/hero.webp` | 첫 화면 (코드가 띄워진 노트북) | [@emilep](https://unsplash.com/photos/xrVDYZRGdw4) |
+| `assets/notice.webp` | 공지사항 옆 (게시판) | [@kukaka](https://unsplash.com/photos/7PP4RKH8aII) |
+| `assets/career.webp` | 배움이 진로가 되도록 (노트북 앞에 모여 과제하는 학생들) | [@silverkblack](https://unsplash.com/photos/8gAbl776pc0) |
 | `assets/bg-clover.webp` | 인트로 | Higgsfield로 생성 |
 
 ## 실행
