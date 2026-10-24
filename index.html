@@ -213,6 +213,22 @@
     .rp-steps { display: grid; gap: 6px; margin: 0 0 20px; padding: 0; list-style: none; counter-reset: step; }
     .rp-steps li { display: flex; align-items: baseline; gap: 10px; padding: 10px 12px; font-size: 14px; background: var(--ivory); border-radius: 4px; counter-increment: step; }
     .rp-steps li::before { content: counter(step); font-family: var(--serif); font-size: 18px; color: var(--main); }
+    /* 시작하기: 상자 모양 덮개가 화면 전체로 커짐. 배경은 시작 리추얼 무대와 같아서 이어져 보임 */
+    .rp-expand { position: fixed; z-index: 40; overflow: hidden; isolation: isolate; pointer-events: none; }
+    .rp-expand::before, .ritual-page.stage-open::before {
+      content: ""; position: fixed; inset: -24px; z-index: -1;
+      background: url("assets/ritual-morning.webp") center 40% / cover; filter: blur(6px) saturate(1.1);
+    }
+    .rp-expand::after, .ritual-page.stage-open::after {
+      content: ""; position: fixed; inset: 0; z-index: -1;
+      background: linear-gradient(180deg, rgba(0, 40, 45, 0.35) 0%, rgba(0, 40, 45, 0.7) 100%);
+    }
+    .ritual-page { isolation: isolate; }
+    .ritual-page.stage-open { color: var(--white); }
+    .ritual-page.stage-open > .wrap > .rp-back, .ritual-page.stage-open h1, .ritual-page.stage-open > .wrap > .eyebrow { color: var(--white); }
+    .ritual-page.stage-open .rp-card { color: var(--black); animation: rpRise .6s cubic-bezier(.16, 1, .3, 1) both .05s; box-shadow: 0 30px 60px -30px rgba(0, 20, 25, 0.7); }
+    @keyframes rpRise { from { opacity: 0; transform: translateY(18px); } }
+    @media (prefers-reduced-motion: reduce) { .ritual-page.stage-open .rp-card { animation: none; } }
     @media (max-width: 800px) { .rp-choose { grid-template-columns: 1fr; } .rp-tile { min-height: 260px; } }
 
     /* 공지사항 (반반 구역의 글 쪽) */
@@ -1843,8 +1859,8 @@
       updateTopbar();
       if (!me) return;
       loadNotices(); loadLearn();
-      // 주소가 #ritual 이면(리추얼 페이지에서 새로고침) 인트로 없이 리추얼 페이지로
-      if (location.hash === RITUAL_HASH) { intro.classList.add('leaving'); openRitualPage(); }
+      // 주소가 #ritual… 이면(리추얼 페이지에서 새로고침) 인트로 없이 리추얼 페이지로
+      if (isRitualHash(location.hash)) { intro.classList.add('leaving'); openRitualPage(); }
     });
     function logIn() {
       authModal.close();
@@ -1852,7 +1868,7 @@
       loadNotices();
       loadLearn();
       enter();   // 인트로가 사라지고 메인으로
-      if (location.hash === RITUAL_HASH) openRitualPage();   // 리추얼 페이지 주소로 들어왔으면 로그인 뒤 바로 그 페이지
+      if (isRitualHash(location.hash)) openRitualPage();   // 리추얼 페이지 주소로 들어왔으면 로그인 뒤 바로 그 페이지
     }
     async function logOut() {
       if (db) await db.auth.signOut();
@@ -2629,12 +2645,14 @@
     const rpForms = [document.getElementById('rpOpen'), document.getElementById('rpClose')];
     document.querySelector('#rpOpen .rp-steps').append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
     let rpToday = {};
-    async function openRitualPage() {
+    // 리추얼 페이지 주소: #ritual(고르기) · #ritual/open(시작 리추얼) · #ritual/close(마무리 리추얼). 새로고침해도 그대로
+    const ritualKindOf = h => ({ [`${RITUAL_HASH}/open`]: 'open', [`${RITUAL_HASH}/close`]: 'close' })[h] || null;
+    const isRitualHash = h => h === RITUAL_HASH || !!ritualKindOf(h);
+    async function openRitualPage(kind = ritualKindOf(location.hash)) {
       document.getElementById('rpDate').textContent = dayLabel(todayKST());
       document.getElementById('rpSim').hidden = me?.role === 'student';
       ritualPage.hidden = false;
-      ritualPage.scrollTop = 0;
-      showRitualChoice();
+      kind ? showRitualForm(kind) : showRitualChoice();
       const { data, error } = await db.from('rituals').select('kind, strength, action, result, next_action')
         .eq('student_id', me.id).eq('day', todayKST());
       rpToday = Object.fromEntries((error ? [] : data).map(r => [r.kind, r]));
@@ -2658,35 +2676,65 @@
         : await db.from('rituals').insert({ kind, ...row });
       setBusy(f, false);
       if (error) return say(msg, '저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.', true);
-      await openRitualPage();
-      showRitualForm(kind);
+      await openRitualPage(kind);
       say(msg, `${RITUALS[kind].name}을 저장했어요.`);
       loadLearn();   // 학생 홈 카드도 새로
     }));
     const rpChoose = document.getElementById('rpChoose');
-    function showRitualChoice() { rpChoose.hidden = false; rpForms.forEach(f => { f.hidden = true; }); }
+    function showRitualChoice() {
+      rpChoose.hidden = false;
+      rpForms.forEach(f => { f.hidden = true; });
+      ritualPage.classList.remove('stage-open');
+    }
+    // 시작 리추얼은 숲 사진이 화면 전체에 깔린 '무대'로 보여 줌
     function showRitualForm(kind) {
       rpChoose.hidden = true;
       rpForms.forEach(f => { f.hidden = f.dataset.kind !== kind; });
+      ritualPage.classList.toggle('stage-open', kind === 'open');
       ritualPage.scrollTop = 0;
     }
+    // 시작하기: 상자가 화면 전체로 커지며 시작 리추얼 페이지로 넘어감 (움직임 줄이기 설정이면 바로 넘어감)
+    function expandTile(tile, done) {
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return done();
+      const r = tile.getBoundingClientRect();
+      const cover = el('div', { className: `rp-expand ${tile.dataset.kind}` });
+      document.body.append(cover);
+      cover.animate([
+        { top: `${r.top}px`, left: `${r.left}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: '6px' },
+        { top: '0px', left: '0px', width: `${innerWidth}px`, height: `${innerHeight}px`, borderRadius: '0px' },
+      ], { duration: 700, easing: 'cubic-bezier(.65, 0, .35, 1)', fill: 'forwards' }).onfinish = () => {
+        done();   // 같은 배경의 시작 리추얼 페이지를 아래에 깔고
+        cover.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: 'forwards' }).onfinish = () => cover.remove();
+      };
+    }
+    // 주소 기록: ritual = 메인 이후 우리가 쌓은 칸 수, base = 메인에서 들어왔는지 (주소로 바로 들어오면 false)
+    const pushRitual = (hash, depth, base) => history.pushState({ ritual: depth, base }, '', hash);
     rpChoose.querySelectorAll('.rp-tile').forEach(t => t.addEventListener('click', () => {
-      showRitualForm(t.dataset.kind);
-      document.querySelector(`.rp-card[data-kind="${t.dataset.kind}"] textarea`).focus({ preventScroll: true });
+      const kind = t.dataset.kind, s = history.state;
+      const go = () => {
+        pushRitual(`${RITUAL_HASH}/${kind}`, (s?.ritual || 0) + 1, !!s?.base);
+        showRitualForm(kind);
+        document.querySelector(`.rp-card[data-kind="${kind}"] textarea`).focus({ preventScroll: true });
+      };
+      kind === 'open' ? expandTile(t, go) : go();
     }));
-    document.querySelectorAll('.rp-to-choose').forEach(b => b.addEventListener('click', showRitualChoice));
-    // 리추얼 페이지는 주소 #ritual 을 따로 가짐: 새로고침해도 그대로, 브라우저 뒤로가기로 메인
+    document.querySelectorAll('.rp-to-choose').forEach(b => b.addEventListener('click', () => {
+      if (history.state?.ritual >= 1) return history.back();   // 고르기 화면에서 들어왔으면 한 칸 뒤로
+      history.replaceState({ ritual: 0, base: false }, '', RITUAL_HASH);
+      showRitualChoice();
+    }));
     function goRitual() {
-      if (location.hash !== RITUAL_HASH) history.pushState({ ritual: true }, '', RITUAL_HASH);
+      if (!isRitualHash(location.hash)) pushRitual(RITUAL_HASH, 1, true);
       openRitualPage();
     }
     function leaveRitual() {
-      if (history.state?.ritual) return history.back();   // 메인에서 들어왔으면 한 칸 뒤로 (popstate 가 페이지를 닫음)
-      history.replaceState(null, '', location.pathname);  // 주소로 바로 들어왔으면 주소만 메인으로
+      const s = history.state;
+      if (s?.base) return history.go(-s.ritual);   // 메인에서 들어왔으면 메인 칸까지 뒤로 (popstate 가 페이지를 닫음)
+      history.replaceState(null, '', location.pathname);   // 주소로 바로 들어왔으면 주소만 메인으로
       ritualPage.hidden = true;
     }
     addEventListener('popstate', () => {
-      if (location.hash === RITUAL_HASH && me) openRitualPage();
+      if (isRitualHash(location.hash) && me) openRitualPage();
       else ritualPage.hidden = true;
     });
     document.getElementById('ritualGo').addEventListener('click', () => me ? goRitual() : showAuth('login'));
