@@ -790,7 +790,7 @@
     }
     .avatar.big { width: 44px; height: 44px; font-size: 18px; }
     .account-pop {
-      position: fixed; inset: 80px 24px auto auto; margin: 0; width: 260px; padding: 8px;
+      position: fixed; inset: 80px 24px auto auto; margin: 0; width: 260px; padding: 8px;   /* 실제 위치는 열 때 계정 버튼 바로 아래로 맞춤 (JS) */
       box-sizing: border-box; border: 1px solid rgba(0, 70, 81, 0.1); border-radius: 18px;
       background: var(--white); color: var(--black); box-shadow: 0 20px 44px -18px rgba(0, 70, 81, 0.45);
     }
@@ -1715,6 +1715,13 @@
     const loginBtn = document.querySelector('.topbar .login-btn');
     const accountBtn = document.getElementById('accountBtn');
     const accountPop = document.getElementById('accountPop');
+    // 계정 메뉴를 계정 버튼 바로 아래, 오른쪽 끝을 맞춰 띄움 (화면이 넓어도 버튼에서 떨어지지 않게)
+    const placeAccountPop = () => {
+      const r = accountBtn.getBoundingClientRect();
+      Object.assign(accountPop.style, { top: `${r.bottom + 8}px`, right: `${Math.max(8, innerWidth - r.right)}px` });
+    };
+    accountPop.addEventListener('beforetoggle', e => { if (e.newState === 'open') placeAccountPop(); });
+    addEventListener('resize', () => { if (accountPop.matches(':popover-open')) placeAccountPop(); });
     // 관리자·강사: 로그아웃 버튼 대신 계정 버튼(계정 정보·내 프로필·대시보드·로그아웃 메뉴) / 학생: 로그아웃 버튼
     function updateTopbar() {
       document.getElementById('heroHello').textContent = me ? `${me.name}님, 반가워요` : 'Korea AI Academy';
