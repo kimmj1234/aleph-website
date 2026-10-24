@@ -476,6 +476,10 @@
       appearance: none; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600;
       padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); color: var(--black); background: var(--white);
     }
+    .chip-group.wrap { flex-wrap: wrap; }
+    .review-links { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
+    .review-links a { color: var(--main); }
+    .review-links .muted { max-width: 260px; white-space: pre-wrap; }
     .chip-group button[aria-pressed="true"] { border-color: var(--main); color: var(--white); background: var(--main); }
     .dash-input {
       box-sizing: border-box; height: 42px; padding: 0 14px; border-radius: 12px; border: 1.5px solid var(--line);
@@ -953,6 +957,7 @@
         <button type="button" data-tab="notices" data-for="admin">공지 관리</button>
         <button type="button" data-tab="codes" data-for="admin">강사 고유 코드</button>
         <button type="button" data-tab="students" data-for="teacher">학생 관리</button>
+        <button type="button" data-tab="review" data-for="teacher admin">과제 확인</button>
         <button type="button" data-tab="profile" data-for="teacher admin">내 프로필</button>
       </nav>
       <button type="button" class="dash-back" id="closeDash">← 사이트로 돌아가기</button>
@@ -1008,6 +1013,20 @@
           <table class="dash-table">
             <thead><tr><th>이름</th><th>아이디</th><th>과정</th><th>관심 분야</th><th></th></tr></thead>
             <tbody id="studentRows"></tbody>
+          </table>
+        </div>
+      </section>
+      <section class="dash-panel" id="tab-review" hidden>
+        <h1 class="card-title">과제 확인</h1>
+        <p class="lead" id="reviewLead"></p>
+        <div class="dash-tools">
+          <div class="chip-group wrap" id="reviewChips" role="group" aria-label="상태로 거르기"></div>
+        </div>
+        <p class="dash-msg" id="reviewMsg" role="status"></p>
+        <div class="table-wrap dash-box">
+          <table class="dash-table">
+            <thead><tr><th>학생</th><th>과제</th><th>제출물</th><th>제출일</th><th>상태</th><th></th></tr></thead>
+            <tbody id="reviewRows"></tbody>
           </table>
         </div>
       </section>
@@ -1721,7 +1740,7 @@
     const dash = document.getElementById('dashboard');
     const dashTabs = [...dash.querySelectorAll('.dash-nav [data-tab]')];
     const LOADERS = { overview: loadOverview, members: loadMembers, notices: loadAdminNotices, codes: loadCodes,
-                      students: loadStudents, profile: loadProfile };
+                      students: loadStudents, profile: loadProfile, review: loadReview };
     function showTab(name) {
       dashTabs.forEach(b => b.dataset.tab === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
       dash.querySelectorAll('.dash-panel').forEach(p => { p.hidden = p.id !== `tab-${name}`; });
@@ -2025,6 +2044,66 @@
     }
     studentSearch.addEventListener('input', renderStudents);
 
+    // 과제 확인 (강사·관리자): 강사가 '확인' 또는 '다시 제출 요청' → 관리자가 '최종 승인'하면 학생의 다음 과제가 열림
+    // 누가 어떤 상태로 바꿀 수 있는지는 서버 규칙이 정함 (강사는 최종 승인 불가)
+    const STATUS = { submitted: '제출됨', checked: '강사 확인', approved: '최종 승인', returned: '다시 제출 요청' };
+    let reviews = [];
+    let reviewStatus = null;
+    const reviewRows = document.getElementById('reviewRows');
+    const reviewMsg = document.getElementById('reviewMsg');
+    const reviewChips = document.getElementById('reviewChips');
+    reviewChips.append(...[['', '전체'], ...Object.entries(STATUS)].map(([v, t]) =>
+      el('button', { type: 'button', textContent: t, value: v, onclick() { reviewStatus = v; renderReview(); } })));
+    async function loadReview() {
+      // 처음 열 때: 강사는 새로 들어온 제출, 관리자는 강사가 확인한 제출부터
+      reviewStatus ??= me.role === 'admin' ? 'checked' : 'submitted';
+      document.getElementById('reviewLead').textContent = me.role === 'admin'
+        ? '강사가 확인한 제출물을 최종 승인하면 학생에게 다음 과제가 열려요.'
+        : '학생이 낸 제출물을 열어 보고 확인하거나 다시 제출을 요청하세요. 최종 승인은 관리자가 해요.';
+      const { data, error } = await db.from('submissions')
+        .select('id, result_url, source_url, memo, status, created_at, student:profiles!student_id(name, userid), assignment:assignments(label, title)')
+        .order('created_at', { ascending: false });
+      if (error) return say(reviewMsg, '제출 목록을 불러오지 못했어요.', true);
+      reviews = data;
+      renderReview();
+    }
+    function renderReview() {
+      reviewChips.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.value === reviewStatus));
+      const list = reviews.filter(r => !reviewStatus || r.status === reviewStatus);
+      if (!list.length) {
+        const td = el('td', { className: 'muted', colSpan: 6, textContent: reviews.length ? '해당하는 제출이 없어요.' : '아직 제출된 과제가 없어요.' });
+        return reviewRows.replaceChildren(el('tr').appendChild(td).parentNode);
+      }
+      // 바꿀 수 있는 상태: 강사는 확인·다시 제출 요청 (최종 승인된 건 손대지 않음), 관리자는 최종 승인·다시 제출 요청
+      const actions = r => me.role === 'admin'
+        ? [['approved', '최종 승인', 'solid'], ['returned', '다시 제출 요청', 'danger']].filter(([s]) => s !== r.status)
+        : r.status === 'approved' ? [] : [['checked', '확인', 'solid'], ['returned', '다시 제출 요청', 'danger']].filter(([s]) => s !== r.status);
+      reviewRows.replaceChildren(...list.map(r => {
+        const links = el('div', { className: 'review-links' });
+        if (r.result_url) links.append(el('a', { href: r.result_url, target: '_blank', rel: 'noopener', textContent: '결과물 열기' }));
+        if (r.source_url) links.append(el('a', { href: r.source_url, target: '_blank', rel: 'noopener', textContent: '소스 열기' }));
+        if (r.memo) links.append(el('span', { className: 'muted', textContent: r.memo }));
+        const btns = el('div', { className: 'row-btns' });
+        btns.append(...actions(r).map(([s, t, cls]) => el('button', { type: 'button', className: `mini-btn ${cls}`, textContent: t,
+          async onclick() {
+            this.disabled = true;
+            const { data, error } = await db.from('submissions').update({ status: s }).eq('id', r.id).select('id');
+            if (error || !data.length) { this.disabled = false; return say(reviewMsg, '상태를 바꾸지 못했어요. 권한을 확인해 주세요.', true); }
+            say(reviewMsg, `${r.student?.name ?? '학생'} · ${r.assignment.label}: ${STATUS[s]}(으)로 바꿨어요.`);
+            loadReview();
+          } })));
+        const tr = el('tr');
+        tr.append(el('td', { textContent: r.student ? `${r.student.name} (${r.student.userid})` : '-' }),
+          el('td', { textContent: `${r.assignment.label} ${r.assignment.title}` }),
+          el('td'), el('td', { className: 'muted', textContent: fmtDate(r.created_at) }),
+          el('td'), el('td'));
+        tr.children[2].append(links);
+        tr.children[4].append(el('span', { className: `badge ${r.status}`, textContent: STATUS[r.status] }));
+        tr.children[5].append(btns);
+        return tr;
+      }));
+    }
+
     // 강사 고유 코드: 발급 · 보기/복사 · 사용 전 코드 삭제
     const codeList = document.getElementById('codeList');
     const adminMsg = document.getElementById('adminMsg');
@@ -2082,7 +2161,6 @@
     // ── 학생 홈: 오늘의 리추얼 · 과제 진행 · 내 제출 현황 ──
     // 날짜는 한국 시간 기준 (서버도 같은 기준으로 오늘 리추얼을 저장)
     const todayKST = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' });
-    const STATUS = { submitted: '제출됨', checked: '강사 확인', approved: '최종 승인', returned: '다시 제출 요청' };
     const RITUALS = {
       open: { name: '아침 리추얼', eyebrow: 'Morning', fields: ['strength', 'action'], labels: ['강점', '행동'],
               lead: '수업 전에, 오늘 쓸 나의 강점과 오늘 할 행동 하나를 적어요.' },
