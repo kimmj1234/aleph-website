@@ -182,7 +182,7 @@
     .rp-grid { max-width: 720px; margin-top: 24px; }
     .rp-card[hidden], .rp-choose[hidden] { display: none; }
     .rp-card .rp-back { margin-bottom: 14px; }
-    /* 고르는 상자: 크게, 위에 흰 글씨. 아침은 숲 햇살, 마무리는 도시 야경 사진을 흐리게 깔아 분위기 */
+    /* 고르는 상자: 크게, 위에 흰 글씨. 시작은 숲 햇살, 마무리는 도시 야경 사진을 흐리게 깔아 분위기 */
     .rp-choose { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
     .rp-tile {
       position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-end; gap: 10px;
@@ -934,7 +934,7 @@
         <p class="body-text">코딩이 처음이어도 괜찮아요. 눈높이에 맞춘 단계별 수업으로 AI를 이해하고, 직접 만들어 보며 한 걸음씩 성장해요.</p>
         <div class="actions">
           <a class="ed-btn light" href="#courses">교육 과정 보기</a>
-          <a class="ed-btn" href="#notice">아침 리추얼 알아보기</a>
+          <a class="ed-btn" href="#notice">시작 리추얼 알아보기</a>
         </div>
       </div>
     </section>
@@ -969,7 +969,7 @@
             <h3 id="historyTitle">내가 이어 온 흔적</h3>
             <p class="hist-meta">리추얼 누적 <b id="ritualTotal">0</b>회 · 성장 점수 <b id="growthScore">0</b>점 · 성장 단계 <b id="growthStage">1</b> / 7</p>
             <div class="heatmap" id="heatmap" role="img"></div>
-            <p class="heat-note">최근 4주 · 칸 하나가 하루 (옅은 칸 = 아침이나 마무리 하나, 진한 칸 = 둘 다)</p>
+            <p class="heat-note">최근 4주 · 칸 하나가 하루 (옅은 칸 = 시작이나 마무리 하나, 진한 칸 = 둘 다)</p>
             <h4 class="sub-head">기록에서 건져 올린 문장들</h4>
             <ul class="thoughts" id="thoughts"></ul>
           </article>
@@ -1005,11 +1005,11 @@
       </ul>
     </div>
 
-    <!-- 아침 리추얼: 글 + 사진 -->
+    <!-- 시작 리추얼: 글 + 사진 -->
     <section class="split" id="notice" aria-labelledby="morningTitle">
       <div class="split-text">
-        <p class="eyebrow">Morning Ritual</p>
-        <h2 class="serif" id="morningTitle">아침 리추얼</h2>
+        <p class="eyebrow">Opening Ritual</p>
+        <h2 class="serif" id="morningTitle">시작 리추얼</h2>
         <hr class="rule">
         <p class="body-text">아침 활동은 약 35~40분이며 운영 슬롯은 45분입니다. 호흡부터 차례로 진행합니다.</p>
         <!-- 리추얼 페이지를 엶 (학생·강사·관리자 모두) -->
@@ -1059,7 +1059,7 @@
           <h2 class="serif" id="helpTitle">궁금한 점이 있나요?</h2>
           <hr class="rule center">
           <p class="body-text">수업, 계정, 공지에 대해 궁금한 점은 언제든 물어보세요. 담당 선생님과 관리자가 도와드려요.</p>
-          <a class="ed-btn" href="#notice">아침 리추얼부터 시작하기</a>
+          <a class="ed-btn" href="#notice">시작 리추얼로 하루 열기</a>
         </div>
         <ul class="help-list">
           <li><p class="eyebrow">수업 문의</p><p>담당 강사 선생님께</p></li>
@@ -1250,18 +1250,18 @@
       <p class="eyebrow" id="rpDate"></p>
       <h1 class="serif" id="ritualPageTitle">오늘의 리추얼</h1>
       <p class="rp-sim" id="rpSim" hidden>학생 화면 체험 · 이 기록은 내 계정에만 저장되고, 학생 현황과 성장 통계에는 들어가지 않아요.</p>
-      <!-- 시작(아침)·마무리 중 고르는 큰 상자 두 개. 고르면 그 기록 칸만 보임 -->
+      <!-- 시작·마무리 중 고르는 큰 상자 두 개. 고르면 그 기록 칸만 보임 -->
       <div class="rp-choose" id="rpChoose">
         <button type="button" class="rp-tile morning" data-kind="open">
           <span class="badge" data-tile-state></span>
-          <span class="rp-tile-eyebrow">Morning · 수업 전 · 운영 45분</span>
-          <strong>아침 리추얼</strong>
+          <span class="rp-tile-eyebrow">Opening · 수업 전 · 운영 45분</span>
+          <strong>시작 리추얼</strong>
           <span class="rp-tile-desc">호흡부터 차례로, 오늘 쓸 강점과 첫 행동까지</span>
           <span class="rp-tile-go">시작하기<svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </button>
         <button type="button" class="rp-tile evening" data-kind="close">
           <span class="badge" data-tile-state></span>
-          <span class="rp-tile-eyebrow">Evening · 수업 후 · 운영 30분</span>
+          <span class="rp-tile-eyebrow">Closing · 수업 후 · 운영 30분</span>
           <strong>마무리 리추얼</strong>
           <span class="rp-tile-desc">오늘 실행한 결과와 다음 행동을 정리해요</span>
           <span class="rp-tile-go">마무리하기<svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
@@ -1270,12 +1270,12 @@
       <div class="rp-grid">
         <form class="rp-card" id="rpOpen" data-kind="open" hidden>
           <button type="button" class="rp-back rp-to-choose">← 리추얼 선택으로</button>
-          <div class="card-top"><h2>아침 리추얼</h2><span class="badge" data-state></span></div>
+          <div class="card-top"><h2>시작 리추얼</h2><span class="badge" data-state></span></div>
           <p class="card-lead">수업 전 · 운영 45분 (활동 약 35~40분). 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 적어요.</p>
           <ol class="rp-steps"></ol>
           <label class="field"><span>오늘 쓸 나의 강점과 가치</span><textarea class="dash-input" name="strength" maxlength="300" rows="2" placeholder="예) 끝까지 붙잡는 끈기"></textarea></label>
           <label class="field"><span>오늘의 첫 행동</span><textarea class="dash-input" name="action" maxlength="300" rows="2" placeholder="예) 과제 질문을 세 가지로 바꿔 물어보기"></textarea></label>
-          <div class="form-row"><button class="ed-btn" type="submit">아침 리추얼 저장</button><p class="dash-msg" role="status"></p></div>
+          <div class="form-row"><button class="ed-btn" type="submit">시작 리추얼 저장</button><p class="dash-msg" role="status"></p></div>
         </form>
         <form class="rp-card" id="rpClose" data-kind="close" hidden>
           <button type="button" class="rp-back rp-to-choose">← 리추얼 선택으로</button>
@@ -1303,7 +1303,7 @@
     </section>
   </dialog>
 
-  <!-- 리추얼 쓰기 창: 아침(강점·행동) / 마무리(결과·다음 행동) -->
+  <!-- 리추얼 쓰기 창: 시작(강점·행동) / 마무리(결과·다음 행동) -->
   <dialog class="form-dialog" id="ritualDialog" closedby="any" aria-labelledby="ritualTitle">
     <button class="dialog-close" type="button" aria-label="닫기">×</button>
     <form id="ritualForm">
@@ -1578,7 +1578,7 @@
       document.getElementById('todayList').replaceChildren(...todays.map(noticeItem));
       document.getElementById('dlgTodayCount').textContent = `${todays.length}개`;
       document.getElementById('todayEmpty').hidden = todays.length > 0;
-      const todayLine = document.getElementById('todayLine');   // 메인의 공지 구역은 '아침 리추얼'로 바뀌어 지금은 없음
+      const todayLine = document.getElementById('todayLine');   // 메인의 공지 구역은 '시작 리추얼'로 바뀌어 지금은 없음
       if (todayLine) todayLine.innerHTML = todays.length ? `오늘 올라온 공지 <b>${todays.length}개</b>` : '오늘 올라온 공지는 없어요.';
     }
     const noticeDialog = document.getElementById('noticeDialog');
@@ -2604,19 +2604,19 @@
     const addDays = (ymd, n) => kstDate(new Date(Date.parse(`${ymd}T12:00:00+09:00`) + n * 864e5));
     const dayLabel = ymd => new Date(`${ymd}T12:00:00+09:00`).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul', month: 'long', day: 'numeric', weekday: 'short' });
     const RITUALS = {
-      open: { name: '아침 리추얼', short: '아침', eyebrow: 'Morning', fields: ['strength', 'action'], labels: ['강점', '행동'],
+      open: { name: '시작 리추얼', short: '시작', eyebrow: 'Opening', fields: ['strength', 'action'], labels: ['강점', '행동'],
               lead: '수업 전에, 오늘 쓸 나의 강점·가치와 오늘의 첫 행동을 적어요.' },
-      close: { name: '마무리 리추얼', short: '마무리', eyebrow: 'Evening', fields: ['result', 'next_action'], labels: ['결과', '다음'],
+      close: { name: '마무리 리추얼', short: '마무리', eyebrow: 'Closing', fields: ['result', 'next_action'], labels: ['결과', '다음'],
                lead: '수업 후에, 오늘 실행한 결과와 다음에 할 행동을 정리해요.' },
     };
-    // 아침 활동 순서 (기존 포털 안내 그대로)
+    // 시작 리추얼 활동 순서 (기존 포털 안내 그대로)
     const MORNING_STEPS = ['호흡 5분', '편안한 장면 떠올리기 2~3분', '강점·가치 고르기 3~4분', '개인 기록과 서로 인정하기 15~20분', '행동 계획 6분'];
     // ponytail: 성장 단계는 임시 기준(20점마다 1단계, 최대 7). 실제 기준이 정해지면 이 숫자만 바꿈
     const STAGE_POINTS = 20;
     const learn = document.getElementById('learn');
     const learnMsg = document.getElementById('learnMsg');
     // ── 리추얼 페이지 (학생·강사·관리자) ──
-    // 오늘 아침·마무리 기록을 쓰고 고침. 강사·관리자 기록은 본인 계정에만 남는 체험 기록
+    // 오늘 시작·마무리 기록을 쓰고 고침. 강사·관리자 기록은 본인 계정에만 남는 체험 기록
     const ritualPage = document.getElementById('ritualPage');
     const rpForms = [document.getElementById('rpOpen'), document.getElementById('rpClose')];
     document.querySelector('#rpOpen .rp-steps').append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
@@ -2797,23 +2797,23 @@
       renderMissed(today);
       renderHelp();
     }
-    // 오늘의 리추얼: 아침 전에는 '시작할 준비' 안내, 아침 뒤에는 오늘 쓸 강점·첫 행동 + 마무리
+    // 오늘의 리추얼: 시작 리추얼 전에는 준비 안내, 쓴 뒤에는 오늘 쓸 강점·첫 행동 + 마무리
     function renderToday(open, close) {
       const card = document.getElementById('todayCard');
       if (!open) {
         const ol = el('ol', { className: 'morning-steps' });
         ol.append(...MORNING_STEPS.map(t => el('li', { textContent: t })));
         const row = el('div', { className: 'form-row' });
-        row.append(el('button', { type: 'button', className: 'ed-btn', textContent: '아침 리추얼 시작', onclick: () => openRitual('open') }),
+        row.append(el('button', { type: 'button', className: 'ed-btn', textContent: '시작 리추얼 하기', onclick: () => openRitual('open') }),
           el('span', { className: 'muted-note', textContent: '운영 45분' }));
         return card.replaceChildren(el('p', { className: 'eyebrow', textContent: '오늘의 시작' }),
-          el('h3', { textContent: '아침 리추얼을 시작할 준비' }),
-          el('p', { className: 'card-lead', textContent: '아침 활동은 약 35~40분이에요. 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 기록해요.' }),
+          el('h3', { textContent: '시작 리추얼 준비' }),
+          el('p', { className: 'card-lead', textContent: '시작 리추얼은 약 35~40분이에요. 호흡부터 차례로 진행하고, 마지막에 오늘 쓸 강점과 첫 행동을 기록해요.' }),
           ol, row);
       }
       const head = el('div', { className: 'card-top' });
       head.append(el('p', { className: 'eyebrow', textContent: '오늘의 행동 기준' }),
-        el('button', { type: 'button', className: 'mini-btn', textContent: '아침 기록 고치기', onclick: () => openRitual('open') }));
+        el('button', { type: 'button', className: 'mini-btn', textContent: '시작 기록 고치기', onclick: () => openRitual('open') }));
       const closeBox = el('div', { className: 'close-box' });
       if (close) {
         closeBox.append(el('p', { className: 'eyebrow', textContent: '마무리 리추얼 · 완료' }),
@@ -2881,7 +2881,7 @@
         return li;
       }) : [el('li', { className: 'empty-row', textContent: '아직 제출한 과제가 없어요.' })]));
     }
-    // 빠뜨린 리추얼: 지난 7일(주말 제외) 중 아침·마무리 못 쓴 날
+    // 빠뜨린 리추얼: 지난 7일(주말 제외) 중 시작·마무리 못 쓴 날
     function renderMissed(today) {
       const rows = [];
       for (let i = 1; i <= 7; i++) {
